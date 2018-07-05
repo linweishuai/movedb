@@ -6,14 +6,14 @@ import (
 	"io/ioutil"
 	"encoding/json"
 	"strings"
-	"movedb/dbconfig"
-	"movedb/exporter"
-	"movedb/sqlmaker"
+	"movedb/dbconfig"//数据哭连接
+	"movedb/exporter"//导出
+	"movedb/sqlmaker"//sql生成
+	"movedb/importer"//导入
 	"sync"
 	"math"
 	"time"
 	"github.com/cihub/seelog"
-	"movedb/importer"
 )
 
 func main() {
