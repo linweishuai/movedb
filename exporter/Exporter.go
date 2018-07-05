@@ -24,6 +24,8 @@ func (this Exporter)Export(wg *sync.WaitGroup,exportResult *sync.Map,tableName s
 		for _, key := range this.Selectsqlmaker.Sqlmaker.Field {
 			ExportFieldSlice = append(ExportFieldSlice, copyExportField[key])
 		}
+
+		exportcount:=0
 		for exportRs.Next() {
 			if err := exportRs.Scan(ExportFieldSlice...); err != nil {
 				seelog.Errorf("读取数据出错%v", err)
@@ -32,8 +34,13 @@ func (this Exporter)Export(wg *sync.WaitGroup,exportResult *sync.Map,tableName s
 			for key,value:=range this.Selectsqlmaker.Sqlmaker.Field{
 				rowdata[value]=string(*(ExportFieldSlice[key].(*[]byte)))
 			}
+			//fmt.Println(rowdata)
+			exportcount++
 			result = append(result, rowdata)
 		}
+
+		//os.Exit(2)
+		//fmt.Printf("%s导出数据%d",tableName,exportcount)
 		exportResult.Store(tableName,result)
 		wg.Done()
 }
