@@ -5,6 +5,7 @@ import (
 	"movedb/sqlmaker"
 	"sync"
 	"github.com/cihub/seelog"
+	"fmt"
 )
 
 type Exporter struct {
@@ -40,7 +41,7 @@ func (this Exporter)Export(wg *sync.WaitGroup,exportResult *sync.Map,tableName s
 		}
 
 		//os.Exit(2)
-		//fmt.Printf("%s导出数据%d",tableName,exportcount)
+		fmt.Printf("%s导出%d条数据",tableName,exportcount)
 		exportResult.Store(tableName,result)
 		wg.Done()
 }

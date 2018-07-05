@@ -31,7 +31,7 @@ func (this Selectsqlmaker) SelectSqlmaker() string {
 }
 type Insertsqlmaker struct {
 	Sqlmaker Sqlmaker
-	Dataslice []map[string]string
+	Dataslice [][]string
 }
 func (this Insertsqlmaker) InsertSqlmaker() string {
 	var buffer bytes.Buffer
@@ -46,8 +46,8 @@ func (this Insertsqlmaker) InsertSqlmaker() string {
 
 	for _, item := range  this.Dataslice{
 		buffer.WriteString("(")
-		for _, field := range this.Sqlmaker.Field {
-			buffer.WriteString(item[field])
+		for _, value := range item {
+			buffer.WriteString(value)
 			buffer.WriteString(",")
 		}
 		buffer.Truncate(buffer.Len() - 1)

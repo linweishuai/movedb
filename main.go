@@ -13,6 +13,7 @@ import (
 	"math"
 	"time"
 	"github.com/cihub/seelog"
+	"movedb/importer"
 )
 
 func main() {
@@ -72,7 +73,7 @@ func main() {
 			}
 	}
 	var wg sync.WaitGroup
-	fmt.Println(NewFeildmap)
+	//fmt.Println(NewFeildmap)
 	for tableName,FieldSlice:=range exportField{
 		wg.Add(1)
 		exportDB:=dbconfig.DbConfig{
@@ -96,15 +97,17 @@ func main() {
 		go Exporter.Export(&wg,&ExportResult,tableName)
 	}
 	wg.Wait()
+	fmt.Printf("导出所有待用数据")
 	//从导出的数据入手 导出的数据多有几个那么就遍历这些数据
+	beginTime := time.Now().Unix()
 	ExportResult.Range(func(key, value interface{}) bool {
 		//每次导入5000数据
+		fmt.Printf("处理导出%s导出数据共%d条数据",key.(string),len(value.([]map[string]string)))
+		var ig sync.WaitGroup
 		ProcessChan := make(chan struct{}, 5)
 		goroutineNumber:=5000.00
 		GoroutineNumber := int(goroutineNumber)
 		goNumber := math.Ceil(float64(len(value.([]map[string]string))) / goroutineNumber)
-		beginTime := time.Now().Unix()
-		var wg sync.WaitGroup
 		for i := 0; i < int(goNumber); i++ {
 			start := i * GoroutineNumber
 			end := (i + 1) * GoroutineNumber
@@ -115,7 +118,7 @@ func main() {
 				tempSlice = value.([]map[string]string)[start:end]
 			}
 			Importslice:=make(map[string][][]string)
-
+			fmt.Printf("处理导出%s导出数据第%d到%d数据",key.(string),start,end)
 			for _,values:=range tempSlice{
 				//fmt.Println(values)
 				for _,Importable:=range ExImRelation[key.(string)]{
@@ -150,33 +153,38 @@ func main() {
 				}
 			}
 
-
-			wg.Add(1)
-			ProcessChan <- struct{}{}
-			go func(i int) {
-				//_ = tempSlice
-				seelog.Infof("进程%v开启", i+1)
-			}(i)
-
+			for tablealias,importtempslice:=range Importslice{
+				ig.Add(1)
+					var insertsqlmaker=sqlmaker.Insertsqlmaker{
+							Sqlmaker:sqlmaker.Sqlmaker{
+								Tablename:inter.ImportDb[tablealias]["tablename"],
+								Field:ImportTableFieldRelation[tablealias],
+							},
+							Dataslice:importtempslice,
+					}
+					var ImportDbconfig=dbconfig.DbConfig{
+						Host:inter.ImportDb[tablealias]["host"],
+						Username:inter.ImportDb[tablealias]["username"],
+						Passwd:inter.ImportDb[tablealias]["passwd"],
+						Dbname:inter.ImportDb[tablealias]["dbname"],
+					}
+					var Importer=importer.Importer{
+						Dbconnction:ImportDbconfig.GetDbInstance(),
+						Insertsqlmaker:insertsqlmaker,
+					}
+					ProcessChan <- struct{}{}
+					go func(i int) {
+						//_ = tempSlice
+						seelog.Infof("进程%v开启", i+1)
+						Importer.Import(&ig,ProcessChan)
+					}(i)
+			}
 		}
-
-		wg.Wait()
-		finishTime := time.Now().Unix()
-		seelog.Infof("实际消耗时间为：%v秒", finishTime-beginTime)
-
-
-
-
-
-
-
-
-
-
-
-
+		ig.Wait()
 		return true
 	})
+	finishTime := time.Now().Unix()
+	seelog.Infof("实际消耗时间为：%v秒", finishTime-beginTime)
 
 
 
