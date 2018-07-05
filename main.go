@@ -33,6 +33,7 @@ func main() {
 	}
 	//解析出要导出的所有字段
 	var exportField=make(map[string][]string)
+	var ExportResult sync.Map
 	for _,exportsource:=range inter.Fieldrule{
 			//TODO importtarget not ready
 			tablefield:=exportsource[0]
@@ -41,6 +42,7 @@ func main() {
 		    exportField[tableFieldslice[0]]=append(exportField[tableFieldslice[0]],tableFieldslice[1])
 	}
 	var wg sync.WaitGroup
+	fmt.Println(exportField)
 	for tableName,FieldSlice:=range exportField{
 		wg.Add(1)
 		exportDB:=dbconfig.DbConfig{
@@ -61,8 +63,8 @@ func main() {
 				End:0,
 			},
 		}
-		res:=Exporter.Export(wg)
-		fmt.Println(res)
+		go Exporter.Export(&wg,&ExportResult,tableName)
 	}
 	wg.Wait()
+	fmt.Println(ExportResult.Load("a"))
 }

@@ -12,7 +12,7 @@ type Exporter struct {
 	Selectsqlmaker 	sqlmaker.Selectsqlmaker
 }
 
-func (this Exporter)Export(wg sync.WaitGroup) []map[string]string {
+func (this Exporter)Export(wg *sync.WaitGroup,exportResult *sync.Map,tableName string) {
 		result:=make([]map[string]string,0)
 		selectsql := this.Selectsqlmaker.SelectSqlmaker()
 		exportRs, err := this.Dbconnction.Query(selectsql)
@@ -34,8 +34,8 @@ func (this Exporter)Export(wg sync.WaitGroup) []map[string]string {
 			}
 			result = append(result, rowdata)
 		}
+		exportResult.Store(tableName,result)
 		wg.Done()
-		return result
 }
 	func Copy(region []string) map[string]*[]byte {
 		copy := make(map[string]*[]byte)
