@@ -15,9 +15,11 @@ import (
 	"time"
 	"github.com/cihub/seelog"
 	"database/sql"
+	"os"
 )
 
 func main() {
+	SetLogger("logConfig.xml")
 	config_path := flag.String("c","/home/manu/sample/","config_file path")
 	flag.Parse()
 	fmt.Printf("配置文件位置 : %s\n",*config_path)
@@ -77,6 +79,8 @@ func main() {
 				ExtraData:ExtraData,
 			}
 	}
+	//fmt.Println(ImportTableFieldRelation)
+	//os.Exit(1)
 	var wg sync.WaitGroup
 	for tableName,FieldSlice:=range exportField{
 		wg.Add(1)
@@ -122,14 +126,14 @@ func main() {
 			} else {
 				tempSlice = value.([]map[string]string)[start:end]
 			}
-			//seelog.Infof(tempSlice)
+			//fmt.Println(tempSlice)
 			//os.Exit(1)
-			Importslice:=make(map[string][][]string)
+			Importslice:=make(map[string][]map[string]string)
 			seelog.Infof("处理导出%s导出数据第%d到%d数据",key.(string),start,end)
 			for _,values:=range tempSlice{
 				//seelog.Infof(values)
 				for _,Importable:=range ExImRelation[key.(string)]{
-					var rowdata=make([]string,0)
+					var rowdata=make(map[string]string)
 					//seelog.Infof(key.(string)+Importable)
 					for _,exportfield:= range exportField[key.(string)]  {
 						//seelog.Infof(exportfield)
@@ -140,7 +144,7 @@ func main() {
 							if ok{
 								switch (rule.TransferRule){
 								case "Default":
-									rowdata=append(rowdata,fmt.Sprintf("%q", values[exportfield]))
+									rowdata[importfield]=fmt.Sprintf("%q", values[exportfield])
 								case "OnetoOne":
 									index :=0
 									for nowIndex,content:=range rule.ExtraData[0]{
@@ -148,9 +152,9 @@ func main() {
 											index=nowIndex
 										}
 									}
-									rowdata=append(rowdata,fmt.Sprintf("%q", rule.ExtraData[1][index]))
+									rowdata[importfield]=fmt.Sprintf("%q", rule.ExtraData[1][index])
 								default:
-									rowdata=append(rowdata,fmt.Sprintf("%q", values[exportfield]))
+									rowdata[importfield]=fmt.Sprintf("%q", values[exportfield])
 								}
 							}else{
 								continue
@@ -160,7 +164,8 @@ func main() {
 					Importslice[Importable]=append(Importslice[Importable],rowdata)
 				}
 			}
-			//seelog.Infof(Importslice)
+			//fmt.Println(Importslice)
+			//fmt.Println(ImportTableFieldRelation)
 			//os.Exit(1)
 			for tablealias,importtempslice:=range Importslice{
 				ig.Add(1)
@@ -171,8 +176,7 @@ func main() {
 							},
 							Dataslice:importtempslice,
 					}
-					//seelog.Infof(importtempslice)
-					//os.Exit(1)
+					//fmt.Println(insertsqlmaker)
 					var ImportDbconfig=dbconfig.DbConfig{
 						Host:inter.ImportDb[tablealias]["host"],
 						Username:inter.ImportDb[tablealias]["username"],
@@ -203,6 +207,36 @@ func main() {
 	finishTime := time.Now().Unix()
 	defer func() {
 		seelog.Infof("实际消耗时间为：%v秒", finishTime-beginTime)
+		seelog.Flush()
 	}()
+
+}
+func SetLogger(fileName string) {
+	if _, err := os.Stat(fileName); err == nil {
+		logger, err := seelog.LoggerFromConfigAsFile(fileName)
+		if err != nil {
+			panic(err)
+		}
+
+		seelog.ReplaceLogger(logger)
+	} else {
+		configString := `<seelog>
+                        <outputs formatid="main">
+                            <filter levels="info,error,critical">
+                                <rollingfile type="date" filename="log/AppLog.log" namemode="prefix" datepattern="02.01.2006"/>
+                            </filter>
+                            <console/>
+                        </outputs>
+                        <formats>
+                            <format id="main" format="%Date %Time [%LEVEL] %Msg%n"/>
+                        </formats>
+                        </seelog>`
+		logger, err := seelog.LoggerFromConfigAsString(configString)
+		if err != nil {
+			panic(err)
+		}
+
+		seelog.ReplaceLogger(logger)
+	}
 
 }

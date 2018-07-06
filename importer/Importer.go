@@ -5,6 +5,7 @@ import (
 	"movedb/sqlmaker"
 	"github.com/cihub/seelog"
 	"os"
+	"fmt"
 )
 
 type Importer struct {
@@ -14,9 +15,10 @@ type Importer struct {
 
 func (this Importer)Import(processchan chan struct{}) {
 		selectsql := this.Insertsqlmaker.InsertSqlmaker()
+		//fmt.Println(selectsql)
 		_, err := this.Dbconnction.Exec(selectsql)
 		if err != nil {
-			seelog.Errorf("插入出错%v", err)
+			fmt.Printf("%s插入出错%v",this.Insertsqlmaker.Sqlmaker.Tablename,err)
 			os.Exit(2)
 			}
 		seelog.Infof("%s导入数据成功",this.Insertsqlmaker.Sqlmaker.Tablename)
