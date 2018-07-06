@@ -14,6 +14,7 @@ import (
 	"math"
 	"time"
 	"github.com/cihub/seelog"
+	"database/sql"
 )
 
 func main() {
@@ -22,7 +23,7 @@ func main() {
 	fmt.Printf("配置文件位置 : %s\n",*config_path)
 	content,err:=ioutil.ReadFile(*config_path)
 	 if err!=nil{
-		fmt.Println("读取配置文件出错")
+		seelog.Infof("读取配置文件出错")
 	}
 	type Conifg struct {
 		ExportDb map[string]map[string]string
@@ -32,7 +33,7 @@ func main() {
 	var inter Conifg
 	jsonerr := json.Unmarshal(content, &inter)
 	if jsonerr != nil {
-		fmt.Println("error in translating,", err.Error())
+		seelog.Infof("error in translating,", err.Error())
 		return
 	}
 	//解析出要导出的所有字段
@@ -41,7 +42,8 @@ func main() {
 	//fmt.Print(inter.Fieldrule)
 	var ImportTableFieldRelation=make(map[string][]string)//导入数据库的字段
 	var ExImRelation=make(map[string][]string)//标注我导出的数据导入到那些表里面去
-	var tempmap=make(map[string]string)//临时表
+	var tempmap=make(map[string]struct{})//临时表
+	var exportFieldtemp=make(map[string]struct{})
 	type Fieldrule struct {
 		TransferRule string
 		ExtraData [][]string
@@ -53,10 +55,13 @@ func main() {
 			ImportTableFieldRelation[ImporttableFieldslice[0]]=append(ImportTableFieldRelation[ImporttableFieldslice[0]],ImporttableFieldslice[1])
 			tablefield:=exportsource[0]
 			ExportableFieldslice:=strings.Split(tablefield,".")
-		    exportField[ExportableFieldslice[0]]=append(exportField[ExportableFieldslice[0]],ExportableFieldslice[1])
+			if _,ok:=exportFieldtemp[ExportableFieldslice[0]+ExportableFieldslice[1]];!ok{
+				exportField[ExportableFieldslice[0]]=append(exportField[ExportableFieldslice[0]],ExportableFieldslice[1])
+				exportFieldtemp[ExportableFieldslice[0]+ExportableFieldslice[1]]= struct{}{}
+			}
 		    _,ok:=tempmap[ImporttableFieldslice[0]]
 		    if!ok{//如果读取不到那么就说明不存在这导入表
-				tempmap[ImporttableFieldslice[0]]=tempmap[ImporttableFieldslice[0]]
+				tempmap[ImporttableFieldslice[0]]=struct{}{}
 				ExImRelation[ExportableFieldslice[0]]=append(ExImRelation[ExportableFieldslice[0]],ImporttableFieldslice[0])
 			}
 			//如果是onetoone 模式 那么就需要 两个一一对应的参数
@@ -73,7 +78,6 @@ func main() {
 			}
 	}
 	var wg sync.WaitGroup
-	//fmt.Println(NewFeildmap)
 	for tableName,FieldSlice:=range exportField{
 		wg.Add(1)
 		exportDB:=dbconfig.DbConfig{
@@ -97,12 +101,13 @@ func main() {
 		go Exporter.Export(&wg,&ExportResult,tableName)
 	}
 	wg.Wait()
-	fmt.Printf("导出所有待用数据")
+	seelog.Infof("导出所有待用数据")
 	//从导出的数据入手 导出的数据多有几个那么就遍历这些数据
 	beginTime := time.Now().Unix()
+	var DbInstance=make(map[string]*sql.DB)
 	ExportResult.Range(func(key, value interface{}) bool {
 		//每次导入5000数据
-		fmt.Printf("处理导出%s导出数据共%d条数据",key.(string),len(value.([]map[string]string)))
+		seelog.Infof("处理导出%s导出数据共%d条数据",key.(string),len(value.([]map[string]string)))
 		var ig sync.WaitGroup
 		ProcessChan := make(chan struct{}, 5)
 		goroutineNumber:=5000.00
@@ -117,17 +122,20 @@ func main() {
 			} else {
 				tempSlice = value.([]map[string]string)[start:end]
 			}
+			//seelog.Infof(tempSlice)
+			//os.Exit(1)
 			Importslice:=make(map[string][][]string)
-			fmt.Printf("处理导出%s导出数据第%d到%d数据",key.(string),start,end)
+			seelog.Infof("处理导出%s导出数据第%d到%d数据",key.(string),start,end)
 			for _,values:=range tempSlice{
-				//fmt.Println(values)
+				//seelog.Infof(values)
 				for _,Importable:=range ExImRelation[key.(string)]{
-					rowdata:=make([]string,0)
-				for _,exportfield:= range exportField[key.(string)]  {
-					//fmt.Println(exportfield)
+					var rowdata=make([]string,0)
+					//seelog.Infof(key.(string)+Importable)
+					for _,exportfield:= range exportField[key.(string)]  {
+						//seelog.Infof(exportfield)
 						for _,importfield:=range ImportTableFieldRelation[Importable]{
-							//fmt.Println(Importable)
-							//fmt.Println(Importable+"."+importfield+":"+key.(string)+"."+exportfield)
+							//seelog.Infof(importfield)
+							//seelog.Infof(Importable+"."+importfield+":"+key.(string)+"."+exportfield)
 							rule,ok:=NewFeildmap[Importable+"."+importfield+":"+key.(string)+"."+exportfield]
 							if ok{
 								switch (rule.TransferRule){
@@ -152,7 +160,8 @@ func main() {
 					Importslice[Importable]=append(Importslice[Importable],rowdata)
 				}
 			}
-
+			//seelog.Infof(Importslice)
+			//os.Exit(1)
 			for tablealias,importtempslice:=range Importslice{
 				ig.Add(1)
 					var insertsqlmaker=sqlmaker.Insertsqlmaker{
@@ -162,48 +171,38 @@ func main() {
 							},
 							Dataslice:importtempslice,
 					}
+					//seelog.Infof(importtempslice)
+					//os.Exit(1)
 					var ImportDbconfig=dbconfig.DbConfig{
 						Host:inter.ImportDb[tablealias]["host"],
 						Username:inter.ImportDb[tablealias]["username"],
 						Passwd:inter.ImportDb[tablealias]["passwd"],
 						Dbname:inter.ImportDb[tablealias]["dbname"],
 					}
+					_,ok:=DbInstance[tablealias]
+					if !ok{
+						DbInstance[tablealias]=ImportDbconfig.GetDbInstance()
+					}
 					var Importer=importer.Importer{
-						Dbconnction:ImportDbconfig.GetDbInstance(),
+						Dbconnction:DbInstance[tablealias],
 						Insertsqlmaker:insertsqlmaker,
 					}
 					ProcessChan <- struct{}{}
 					go func(i int) {
-						//_ = tempSlice
 						seelog.Infof("进程%v开启", i+1)
-						Importer.Import(&ig,ProcessChan)
+						Importer.Import(ProcessChan)
+						defer ig.Done()
 					}(i)
 			}
+			seelog.Infof("处理导出%s导出数据第%d到%d数据完成",key.(string),start,end)
 		}
 		ig.Wait()
+		seelog.Infof("处理导出%s导出数据完成",key.(string))
 		return true
 	})
 	finishTime := time.Now().Unix()
-	seelog.Infof("实际消耗时间为：%v秒", finishTime-beginTime)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	defer func() {
+		seelog.Infof("实际消耗时间为：%v秒", finishTime-beginTime)
+	}()
 
 }

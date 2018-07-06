@@ -3,8 +3,8 @@ package importer
 import (
 	"database/sql"
 	"movedb/sqlmaker"
-	"sync"
 	"github.com/cihub/seelog"
+	"os"
 )
 
 type Importer struct {
@@ -12,12 +12,13 @@ type Importer struct {
 	Insertsqlmaker 	sqlmaker.Insertsqlmaker
 }
 
-func (this Importer)Import(wg *sync.WaitGroup,processchan chan struct{}) {
+func (this Importer)Import(processchan chan struct{}) {
 		selectsql := this.Insertsqlmaker.InsertSqlmaker()
 		_, err := this.Dbconnction.Exec(selectsql)
 		if err != nil {
 			seelog.Errorf("插入出错%v", err)
-		}
-		wg.Done()
+			os.Exit(2)
+			}
+		seelog.Infof("%s导入数据成功",this.Insertsqlmaker.Sqlmaker.Tablename)
 		<-processchan
 }

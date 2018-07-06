@@ -39,7 +39,7 @@ func (this Exporter)Export(wg *sync.WaitGroup,exportResult *sync.Map,tableName s
 			exportcount++
 			result = append(result, rowdata)
 		}
-
+		exportRs.Close()
 		//os.Exit(2)
 		fmt.Printf("%s导出%d条数据",tableName,exportcount)
 		exportResult.Store(tableName,result)
