@@ -38,7 +38,7 @@ func (this Insertsqlmaker) InsertSqlmaker() string {
 	buffer.WriteString("INSERT INTO " + this.Sqlmaker.Tablename + " (")
 
 	for _, field := range this.Sqlmaker.Field {
-		buffer.WriteString(" " + field + ",")
+		buffer.WriteString("`" + field + "`,")
 	}
 	buffer.Truncate(buffer.Len() - 1)
 
