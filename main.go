@@ -40,7 +40,7 @@ func main() {
 	}
 	//解析出要导出的所有字段
 	var exportField=make(map[string][]string)
-	var ExportResult sync.Map
+	//var ExportResult sync.Map
 	//fmt.Print(inter.Fieldrule)
 	var ImportTableFieldRelation=make(map[string][]string)//导入数据库的字段
 	var ExImRelation=make(map[string][]string)//标注我导出的数据导入到那些表里面去
@@ -78,69 +78,74 @@ func main() {
 				TransferRule:exportsource[1],
 				ExtraData:ExtraData,
 			}
+			//parse condition from neq eq egt elt
 	}
 	//fmt.Println(ImportTableFieldRelation)
 	//os.Exit(1)
-	var wg sync.WaitGroup
-	for tableName,FieldSlice:=range exportField{
-		wg.Add(1)
-		exportDB:=dbconfig.DbConfig{
-			Host:inter.ExportDb[tableName]["host"],
-			Username:inter.ExportDb[tableName]["username"],
-			Passwd:inter.ExportDb[tableName]["passwd"],
-			Dbname:inter.ExportDb[tableName]["dbname"],
-		}
-		var Dbconnection=exportDB.GetDbInstance();
-		Exporter:=exporter.Exporter{
-			Dbconnction:Dbconnection,
-			Selectsqlmaker:sqlmaker.Selectsqlmaker{
-				Sqlmaker:sqlmaker.Sqlmaker{
-					Tablename:inter.ExportDb[tableName]["tablename"],
-					Field:FieldSlice,
+	var Transferchan=make(chan exporter.Tranferdata,len(inter.ExportDb))
+	//通道的方式传递数据
+	go func() {
+		for tableName,FieldSlice:=range exportField{
+			exportDB:=dbconfig.DbConfig{
+				Host:inter.ExportDb[tableName]["host"],
+				Username:inter.ExportDb[tableName]["username"],
+				Passwd:inter.ExportDb[tableName]["passwd"],
+				Dbname:inter.ExportDb[tableName]["dbname"],
+			}
+			var Dbconnection=exportDB.GetDbInstance();
+			Exporter:=exporter.Exporter{
+				Dbconnction:Dbconnection,
+				Selectsqlmaker:sqlmaker.Selectsqlmaker{
+					Sqlmaker:sqlmaker.Sqlmaker{
+						Tablename:inter.ExportDb[tableName]["tablename"],
+						Field:FieldSlice,
+					},
+					From:0,
+					End:0,
 				},
-				From:0,
-				End:0,
-			},
+			}
+			Exporter.Export(Transferchan,tableName)
 		}
-		go Exporter.Export(&wg,&ExportResult,tableName)
-	}
-	wg.Wait()
-	seelog.Infof("导出所有待用数据")
+		close(Transferchan)
+	}()
+
 	//从导出的数据入手 导出的数据多有几个那么就遍历这些数据
 	beginTime := time.Now().Unix()
 	var DbInstance=make(map[string]*sql.DB)
-	ExportResult.Range(func(key, value interface{}) bool {
+	for transferdata:=range Transferchan {
 		//每次导入5000数据
-		seelog.Infof("处理导出%s导出数据共%d条数据",key.(string),len(value.([]map[string]string)))
+		key:=transferdata.TableName
+		value:=transferdata.Data
+		seelog.Infof("处理导出%s导出数据共%d条数据",key,len(value))
 		var ig sync.WaitGroup
 		ProcessChan := make(chan struct{}, 5)
 		goroutineNumber:=5000.00
 		GoroutineNumber := int(goroutineNumber)
-		goNumber := math.Ceil(float64(len(value.([]map[string]string))) / goroutineNumber)
+		goNumber := math.Ceil(float64(len(value)) / goroutineNumber)
 		for i := 0; i < int(goNumber); i++ {
 			start := i * GoroutineNumber
 			end := (i + 1) * GoroutineNumber
 			var tempSlice []map[string]string
 			if i == int(goNumber)-1 {
-				tempSlice = value.([]map[string]string)[start:]
+				tempSlice = value[start:]
 			} else {
-				tempSlice = value.([]map[string]string)[start:end]
+				tempSlice = value[start:end]
 			}
 			//fmt.Println(tempSlice)
 			//os.Exit(1)
 			Importslice:=make(map[string][]map[string]string)
-			seelog.Infof("处理导出%s导出数据第%d到%d数据",key.(string),start,end)
+			seelog.Infof("处理导出%s导出数据第%d到%d数据",key,start,end)
 			for _,values:=range tempSlice{
 				//seelog.Infof(values)
-				for _,Importable:=range ExImRelation[key.(string)]{
+				for _,Importable:=range ExImRelation[key]{
 					var rowdata=make(map[string]string)
 					//seelog.Infof(key.(string)+Importable)
-					for _,exportfield:= range exportField[key.(string)]  {
+					for _,exportfield:= range exportField[key]  {
 						//seelog.Infof(exportfield)
 						for _,importfield:=range ImportTableFieldRelation[Importable]{
 							//seelog.Infof(importfield)
 							//seelog.Infof(Importable+"."+importfield+":"+key.(string)+"."+exportfield)
-							rule,ok:=NewFeildmap[Importable+"."+importfield+":"+key.(string)+"."+exportfield]
+							rule,ok:=NewFeildmap[Importable+"."+importfield+":"+key+"."+exportfield]
 							if ok{
 								switch (rule.TransferRule){
 								case "Default":
@@ -198,12 +203,11 @@ func main() {
 						defer ig.Done()
 					}(i)
 			}
-			seelog.Infof("处理导出%s导出数据第%d到%d数据完成",key.(string),start,end)
+			seelog.Infof("处理导出%s导出数据第%d到%d数据完成",key,start,end)
 		}
 		ig.Wait()
-		seelog.Infof("处理导出%s导出数据完成",key.(string))
-		return true
-	})
+		seelog.Infof("处理导出%s导出数据完成",key)
+	}
 	finishTime := time.Now().Unix()
 	defer func() {
 		seelog.Infof("实际消耗时间为：%v秒", finishTime-beginTime)

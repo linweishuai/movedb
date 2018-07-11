@@ -3,6 +3,7 @@ package sqlmaker
 import (
 	"strconv"
 	"bytes"
+	"github.com/cihub/seelog"
 )
 
 type Sqlmaker struct {
@@ -24,8 +25,9 @@ func (this Selectsqlmaker) SelectSqlmaker() string {
 	sqlQueryByte := []byte(sqlQuery)
 	sqlQuery = string(sqlQueryByte[:len(sqlQueryByte)-1])
 	sqlQuery+=(" from "+this.Sqlmaker.Tablename)
-	if this.From!=0&&this.End!=0{
-		sqlQuery += (" where id >=" + strconv.Itoa(this.From)+" and id <="+strconv.Itoa(this.End))
+	if this.End!=0{
+		sqlQuery += (" limit " + strconv.Itoa(this.From)+" ,"+strconv.Itoa(this.End))
+		seelog.Infof("准备导出%d到%d数据",this.From,this.End)
 	}
 	return sqlQuery
 }

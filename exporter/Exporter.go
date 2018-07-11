@@ -3,17 +3,19 @@ package exporter
 import (
 	"database/sql"
 	"movedb/sqlmaker"
-	"sync"
 	"github.com/cihub/seelog"
-	"fmt"
 )
 
 type Exporter struct {
 	Dbconnction *sql.DB
 	Selectsqlmaker 	sqlmaker.Selectsqlmaker
 }
+type Tranferdata struct {
+	TableName string
+	Data []map[string]string
+}
 
-func (this Exporter)Export(wg *sync.WaitGroup,exportResult *sync.Map,tableName string) {
+func (this Exporter)Export(exportResult chan Tranferdata,tableName string) {
 		result:=make([]map[string]string,0)
 		selectsql := this.Selectsqlmaker.SelectSqlmaker()
 		exportRs, err := this.Dbconnction.Query(selectsql)
@@ -41,9 +43,12 @@ func (this Exporter)Export(wg *sync.WaitGroup,exportResult *sync.Map,tableName s
 		}
 		exportRs.Close()
 		//os.Exit(2)
-		fmt.Printf("%s导出%d条数据",tableName,exportcount)
-		exportResult.Store(tableName,result)
-		wg.Done()
+		seelog.Infof("%s导出%d条数据",tableName,exportcount)
+		TranferData:=Tranferdata{
+			TableName:tableName,
+			Data:result,
+		}
+		exportResult<-TranferData
 }
 	func Copy(region []string) map[string]*[]byte {
 		copy := make(map[string]*[]byte)
