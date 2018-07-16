@@ -123,7 +123,7 @@ func main() {
 			value:=transferdata.Data
 			seelog.Infof("处理导出%s导出数据共%d条数据",key,len(value))
 			var ig sync.WaitGroup
-			ProcessChan := make(chan struct{}, 5)
+			ProcessChan := make(chan struct{}, 20)
 			goroutineNumber:=5000.00
 			GoroutineNumber := int(goroutineNumber)
 			goNumber := math.Ceil(float64(len(value)) / goroutineNumber)
