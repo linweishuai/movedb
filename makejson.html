@@ -2,13 +2,10 @@
 <html>
 <head>
     <title>编辑规则</title>
-    <meta http-equiv="pragma" content="no-cache">
-    <meta http-equiv="cache-control" content="no-cache">
     <meta http-equiv="Content-Type" content="text/html" charset="utf-8">
     <script type="text/javascript" src="jquery-1.7.2.min.js"></script>
     <script type="text/javascript">
         $(document).ready( function(){
-
             $("#addExportBtn").click(function(){
                 var alias =($("#ExportDb input[name=alias]").val());
                 var host =($("#ExportDb input[name=host]").val());
@@ -151,53 +148,7 @@
 </head>
 
 <body>
-<h2>ExportDb</h2>
-<table border="1" width="800px" id="ExportDb">
-    <tr id="Export">
-        <th>alias</th>
-        <th>host</th>
-        <th>username</th>
-        <th>passwd</th>
-        <th>dbname</th>
-        <th>tablename</th>
-    </tr>
-</table>
-<hr/>
-<form id="ExportDb">
-    <table border="1" width="300px">
-        <tr>
-            <td>alias</td>
-            <td><input type="text" name="alias" value=""/></td>
-        </tr>
-        <tr>
-            <td>host</td>
-            <td><input type="text" name="host" value=""/></td>
-        </tr>
-        <tr>
-            <td>username</td>
-            <td><input type="text" name="username" value=""/></td>
-        </tr>
-        <tr>
-            <td>passwd</td>
-            <td><input type="text" name="passwd" value=""/></td>
-        </tr>
-        <tr>
-            <td>dbname</td>
-            <td><input type="text" name="dbname" value=""/></td>
-        </tr>
-        <tr>
-            <td>tablename</td>
-            <td><input type="text" name="tablename" value=""/></td>
-        </tr>
-        <tr>
-            <td colspan="2" align="center">
-                <input type="button" value="添加" id="addExportBtn"/>
-                <input type="reset" value="重置"/>
-            </td>
-        </tr>
-    </table>
-</form>
-<h2>ImportDb</h2>
+<h2>ImportDb（导入alias 不可重复）</h2>
 <table border="1" width="800px" id="ImportDb">
     <tr id="Import">
         <th>alias</th>
@@ -213,7 +164,7 @@
     <table border="1" width="300px">
         <tr>
             <td>alias</td>
-            <td><input type="text" name="alias" value=""/></td>
+            <td><input type="text" name="alias" value="" placeholder="b"/></td>
         </tr>
         <tr>
             <td>host</td>
@@ -243,7 +194,54 @@
         </tr>
     </table>
 </form>
-<h2>Fieldrule</h2>
+<h2>ExportDb（导出alias 不可重复）</h2>
+<table border="1" width="800px" id="ExportDb">
+    <tr id="Export">
+        <th>alias</th>
+        <th>host</th>
+        <th>username</th>
+        <th>passwd</th>
+        <th>dbname</th>
+        <th>tablename</th>
+    </tr>
+</table>
+<hr/>
+<form id="ExportDb">
+    <table border="1" width="300px">
+        <tr>
+            <td>alias</td>
+            <td><input type="text" name="alias" value="" placeholder="a"/></td>
+        </tr>
+        <tr>
+            <td>host</td>
+            <td><input type="text" name="host" value=""/></td>
+        </tr>
+        <tr>
+            <td>username</td>
+            <td><input type="text" name="username" value=""/></td>
+        </tr>
+        <tr>
+            <td>passwd</td>
+            <td><input type="text" name="passwd" value=""/></td>
+        </tr>
+        <tr>
+            <td>dbname</td>
+            <td><input type="text" name="dbname" value=""/></td>
+        </tr>
+        <tr>
+            <td>tablename</td>
+            <td><input type="text" name="tablename" value=""/></td>
+        </tr>
+        <tr>
+            <td colspan="2" align="center">
+                <input type="button" value="添加" id="addExportBtn"/>
+                <input type="reset" value="重置"/>
+            </td>
+        </tr>
+    </table>
+</form>
+
+<h2>Fieldrule（targetid必须唯一）</h2>
 <table border="1" width="600px">
     <tr id="Fieldrule">
         <th>targetField</th>
@@ -258,11 +256,11 @@
     <table border="1" width="300px">
         <tr>
             <td>targetField</td>
-            <td><input type="text" name="targetField"/></td>
+            <td><input type="text" name="targetField" placeholder="b.id(导入表别名.字段)"/></td>
         </tr>
         <tr>
             <td>sourceField</td>
-            <td><input type="text" name="sourceField"/></td>
+            <td><input type="text" name="sourceField" placeholder="a.id(导出表别名.字段)"/></td>
         </tr>
         <tr>
             <td>feildRule</td>
