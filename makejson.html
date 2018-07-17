@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
-    <title>title</title>
+    <title>编辑规则</title>
 
     <meta http-equiv="pragma" content="no-cache">
     <meta http-equiv="cache-control" content="no-cache">
@@ -17,7 +17,7 @@
                 var dbname =($("#ExportDb input[name=dbname]").val());
                 var tablename =($("#ExportDb input[name=tablename]").val());
 
-                var ha="<tr class='afterAdd'><td><span>";
+                var ha="<tr class='afterAdd ExportDb'><td><span>";
                 var hh ="</span></td><td><span>"; //id
                 var hu="</span></td><td><span>";  //username
                 var hp="</span></td><td><span>"; //password
@@ -34,7 +34,7 @@
                 var dbname =($("#ImportDb input[name=dbname]").val());
                 var tablename =($("#ImportDb input[name=tablename]").val());
 
-                var ha="<tr class='afterAdd'><td><span>";
+                var ha="<tr class='afterAdd ImportDb'><td><span>";
                 var hh ="</span></td><td><span>"; //id
                 var hu="</span></td><td><span>";  //username
                 var hp="</span></td><td><span>"; //password
@@ -43,8 +43,44 @@
                 var hr="<td><span><a href='javascript:void(0)' onclick='del(this)'>删除</a></td></tr>";
                 $("#Import").after(ha+alias+hh+host+hu+username+hp+passwd+hd+dbname+ht+tablename+hr);
             });
+            $("#addFieldBtn").click(function(){
+                var targetField =($("#Fieldrule input[name=targetField]").val());
+                var sourceField =($("#Fieldrule input[name=sourceField]").val());
+                var feildRule =($("#Fieldrule input[name=feildRule]").val());
+                var extraData =($("#Fieldrule input[name=extraData]").val());
+                var ht="<tr class='afterAdd FieldRule'><td><span>";
+                var hs ="</span></td><td><span>"; //id
+                var hf="</span></td><td><span>";  //username
+                var he="</span></td><td><span>"; //password
+                var hr="<td><span><a href='javascript:void(0)' onclick='del(this)'>删除</a></td></tr>";
+                $("#Fieldrule").after(ht+targetField+hs+sourceField+hf+feildRule+he+extraData+hr);
+            });
         });
+        function makejson() {
+            $json=[];
+            //选取ExportDb的所有内容
+            $(".ExportDb").each(function () {
+                var exportdb=[];
+                $(this).children('td').each(function(j){  // 遍历 tr 的各个 td
+                    // if(!j){
+                    //     //第一个作为数组的键值
+                    //     exportdb[$(this).children('span').text()]
+                    // }
+                  });
+                alert(exportdb)
+            })
 
+
+
+
+
+
+
+
+
+
+
+        }
 
         //删除一个
         function del(obj){
@@ -147,48 +183,43 @@
         </tr>
     </table>
 </form>
+<h2>Fieldrule</h2>
 <table border="1" width="600px">
-    <tr id="ImportDb">
-        <th>编号</th>
-        <th>用户名</th>
-        <th>密码</th>
-        <th>年龄</th>
-        <th>住址</th>
-        <th>操作</th>
+    <tr id="Fieldrule">
+        <th>targetField</th>
+        <th>sourceField</th>
+        <th>feildRule</th>
+        <th>extraData</th>
     </tr>
 
 </table>
-
 <hr/>
-<form>
+<form id="Fieldrule">
     <table border="1" width="300px">
         <tr>
-            <td>编号</td>
-            <td><input type="text" name="id" value="1"/></td>
+            <td>targetField</td>
+            <td><input type="text" name="targetField"/></td>
         </tr>
         <tr>
-            <td>用户名</td>
-            <td><input type="text" name="userName" value="2"/></td>
+            <td>sourceField</td>
+            <td><input type="text" name="sourceField"/></td>
         </tr>
         <tr>
-            <td>密码</td>
-            <td><input type="password" name="userPass"/></td>
+            <td>feildRule</td>
+            <td><input type="text" name="feildRule"/></td>
         </tr>
         <tr>
-            <td>年龄</td>
-            <td><input type="text" name="age"/></td>
-        </tr>
-        <tr>
-            <td>住址</td>
-            <td><input type="text" name="c"/></td>
+            <td>extraData</td>
+            <td><input type="text" name="extraData"/></td>
         </tr>
         <tr>
             <td colspan="2" align="center">
-                <input type="button" value="添加" id="addBtn"/>
+                <input type="button" value="添加" id="addFieldBtn"/>
                 <input type="reset" value="重置"/>
             </td>
         </tr>
     </table>
 </form>
+<input type="button" value="生成json" size="200" style="width: 600px; height: 50px;" onclick="makejson()">
 </body>
 </html>
