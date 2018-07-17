@@ -1,10 +1,10 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE html>
 <html>
 <head>
     <title>编辑规则</title>
-
     <meta http-equiv="pragma" content="no-cache">
     <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="Content-Type" content="text/html" charset="utf-8">
     <script type="text/javascript" src="jquery-1.7.2.min.js"></script>
     <script type="text/javascript">
         $(document).ready( function(){
@@ -17,13 +17,13 @@
                 var dbname =($("#ExportDb input[name=dbname]").val());
                 var tablename =($("#ExportDb input[name=tablename]").val());
 
-                var ha="<tr class='afterAdd ExportDb'><td><span>";
-                var hh ="</span></td><td><span>"; //id
-                var hu="</span></td><td><span>";  //username
-                var hp="</span></td><td><span>"; //password
-                var hd="</span></td><td><span>";  //age
-                var ht="</span></td><td><span>";
-                var hr="<td><span><a href='javascript:void(0)' onclick='del(this)'>删除</a></td></tr>";
+                var ha="<tr class='afterAdd ExportDb'><td>";
+                var hh="</td><td>"; //id
+                var hu="</td><td>";  //username
+                var hp="</td><td>"; //password
+                var hd="</td><td>";  //age
+                var ht="</td><td>";
+                var hr="</td><td><span><a href='javascript:void(0)' onclick='del(this)'>删除</a></td></tr>";
                 $("#Export").after(ha+alias+hh+host+hu+username+hp+passwd+hd+dbname+ht+tablename+hr);
             });
             $("#addImportBtn").click(function(){
@@ -34,58 +34,118 @@
                 var dbname =($("#ImportDb input[name=dbname]").val());
                 var tablename =($("#ImportDb input[name=tablename]").val());
 
-                var ha="<tr class='afterAdd ImportDb'><td><span>";
-                var hh ="</span></td><td><span>"; //id
-                var hu="</span></td><td><span>";  //username
-                var hp="</span></td><td><span>"; //password
-                var hd="</span></td><td><span>";  //age
-                var ht="</span></td><td><span>";
-                var hr="<td><span><a href='javascript:void(0)' onclick='del(this)'>删除</a></td></tr>";
+                var ha="<tr class='afterAdd ImportDb'><td>";
+                var hh="</td><td>"; //id
+                var hu="</td><td>";  //username
+                var hp="</td><td>"; //password
+                var hd="</td><td>";  //age
+                var ht="</td><td>";
+                var hr="</td><td><span><a href='javascript:void(0)' onclick='del(this)'>删除</a></td></tr>";
                 $("#Import").after(ha+alias+hh+host+hu+username+hp+passwd+hd+dbname+ht+tablename+hr);
             });
             $("#addFieldBtn").click(function(){
                 var targetField =($("#Fieldrule input[name=targetField]").val());
                 var sourceField =($("#Fieldrule input[name=sourceField]").val());
-                var feildRule =($("#Fieldrule input[name=feildRule]").val());
+                var feildRule =($("#Fieldrule select[name=feildRule]").val());
                 var extraData =($("#Fieldrule input[name=extraData]").val());
-                var ht="<tr class='afterAdd FieldRule'><td><span>";
-                var hs ="</span></td><td><span>"; //id
-                var hf="</span></td><td><span>";  //username
-                var he="</span></td><td><span>"; //password
-                var hr="<td><span><a href='javascript:void(0)' onclick='del(this)'>删除</a></td></tr>";
+                if(feildRule=='OnetoOne'&&extraData==''){
+                    alert('设置为onetoone 必须填写对应列表');
+                    return;
+                }
+                var ht="<tr class='afterAdd FieldRule'><td>";
+                var hs="</td><td>"; //id
+                var hf="</td><td>";  //username
+                var he="</td><td>"; //password
+                var hr="</td><td><span><a href='javascript:void(0)' onclick='del(this)'>删除</a></td></tr>";
                 $("#Fieldrule").after(ht+targetField+hs+sourceField+hf+feildRule+he+extraData+hr);
             });
         });
         function makejson() {
-            $json=[];
+            $json={};
+            $json['ExportDb']={};
+            $json['ImportDb']={};
+            $json['Fieldrule']={};
             //选取ExportDb的所有内容
             $(".ExportDb").each(function () {
                 var exportdb=[];
                 $(this).children('td').each(function(j){  // 遍历 tr 的各个 td
-                    // if(!j){
-                    //     //第一个作为数组的键值
-                    //     exportdb[$(this).children('span').text()]
-                    // }
+                    exportdb.push($(this).text())
                   });
-                alert(exportdb)
-            })
-
-
-
-
-
-
-
-
-
-
-
+                // var dbconfig=[];
+                // dbconfig['host']=exportdb[1];
+                // dbconfig['port']='3306';
+                // dbconfig['username']=exportdb[2];
+                // dbconfig['passwd']=exportdb[3];
+                // dbconfig['dbname']=exportdb[4];
+                // dbconfig['tablename']=exportdb[5];
+                // $json['ExportDb'][exportdb[0]]=dbconfig;
+                $json['ExportDb'][exportdb[0]]={
+                    'host': exportdb[1],
+                    "port": '3306',
+                    'username': exportdb[2],
+                    'passwd': exportdb[3],
+                    'dbname': exportdb[4],
+                    'tablename': exportdb[5],
+                };
+                console.log($json);
+            });
+            $(".ImportDb").each(function () {
+                var importdb=[];
+                $(this).children('td').each(function(j){  // 遍历 tr 的各个 td
+                    importdb.push($(this).text())
+                });
+                console.log(importdb);
+                // var dbconfig=[];
+                // dbconfig['host']=importdb[1];
+                // dbconfig['port']='3306';
+                // dbconfig['username']=importdb[2];
+                // dbconfig['passwd']=importdb[3];
+                // dbconfig['dbname']=importdb[4];
+                // dbconfig['tablename']=importdb[5];
+                // $json['ImportDb'][importdb[0]]=dbconfig;
+                $json['ImportDb'][importdb[0]]={
+                    'host': importdb[1],
+                    "port": '3306',
+                    'username': importdb[2],
+                    'passwd': importdb[3],
+                    'dbname': importdb[4],
+                    'tablename': importdb[5],
+                };
+                console.log($json);
+            });
+            $(".FieldRule").each(function () {
+                var field=[];
+                $(this).children('td').each(function(j){  // 遍历 tr 的各个 td
+                    field.push($(this).text())
+                });
+                console.log(field);
+                if(field[2]=='OnetoOne'){
+                    $json['Fieldrule'][field[0]]=[field[1],field[2],field[3]];
+                }else{
+                    $json['Fieldrule'][field[0]]=[field[1],field[2]];
+                }
+                console.log($json);
+            });
+            jsonstr=JSON.stringify($json);
+            funDownload(jsonstr, 'config.json');
         }
-
         //删除一个
         function del(obj){
             $(obj).parent().parent().parent().remove();
 
+        };
+        var funDownload = function (content, filename) {
+            var eleLink = document.createElement('a');
+            eleLink.download = filename;
+            eleLink.style.display = 'none';
+            // 字符内容转变成blob地址
+            var blob = new Blob([content]);
+            eleLink.href = URL.createObjectURL(blob);
+            // 触发点击
+            document.body.appendChild(eleLink);
+            eleLink.click();
+            // 然后移除
+            document.body.removeChild(eleLink);
         };
     </script>
 </head>
@@ -206,11 +266,14 @@
         </tr>
         <tr>
             <td>feildRule</td>
-            <td><input type="text" name="feildRule"/></td>
+            <td><select name="feildRule">
+                <option value="Default">Default</option>
+                <option value="OnetoOne">OnetoOne</option>
+            </select></td>
         </tr>
         <tr>
             <td>extraData</td>
-            <td><input type="text" name="extraData"/></td>
+            <td><input type="text" name="extraData" placeholder="-1,0,1:1,2,3"/></td>
         </tr>
         <tr>
             <td colspan="2" align="center">
@@ -220,6 +283,6 @@
         </tr>
     </table>
 </form>
-<input type="button" value="生成json" size="200" style="width: 600px; height: 50px;" onclick="makejson()">
+<div style="text-align: center"><input type="button" value="生成json" size="200" style="width: 600px; height: 50px;" onclick="makejson()"></div>
 </body>
 </html>
