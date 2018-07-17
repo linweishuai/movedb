@@ -9,82 +9,55 @@
     <script type="text/javascript">
         $(document).ready( function(){
 
-            $("#addBtn").click(function(){
+            $("#addExportBtn").click(function(){
+                var alias =($("#ExportDb input[name=alias]").val());
+                var host =($("#ExportDb input[name=host]").val());
+                var username =($("#ExportDb input[name=username]").val());
+                var passwd =($("#ExportDb input[name=passwd]").val());
+                var dbname =($("#ExportDb input[name=dbname]").val());
+                var tablename =($("#ExportDb input[name=tablename]").val());
 
-                //获取表单内容
-                var alias =($(":text[name=alias]").val());
-                var host =($(":text[name=host]").val());
-                var username =($(":text[name=username]").val());
-                var passwd =($(":text[name=passwd]").val());
-                var dbname =($(":text[name=dbname]").val());
-                var tablename =($(":text[name=tablename]").val());
-
-                //在id：delAllID之后追加内容
-                //外部插入
-                //$("#add").after("<tr ><td><input type='checkbox'/></td><td><span>'+id+'</span></td><td><span>'+uername+'</span></td><td><span>'+password+'</span></td><td><span>'+age+'</span></td><td><span>'+address+'</span></td><td ><a href=’javascript:void(0)‘ id=’delete‘>删除</a></td></tr>");
-                var hr="<tr id='";
-                var hi ="' class='afterAdd'><td><span>"; //id
-                var ha="</span></td><td><span>";  //username
-                var hh="</span></td><td><span>"; //password
-                var hu="</span></td><td><span>";  //age
-                var hp="</span></td><td><span>";  //address
-                var hd="</span></td><td><span>";  //address
-                var ht="</span></td><td ><span><a href=";
-                var h8="javascript:void(0)";
-                var h9=" onclick='del(this)'>删除</a></td></tr>";
-
-
-                //在<tr id="add"/>标签之后，即外部插入以下内容
-                $("#add").after(hr+alias+hi+alias+ha+host+hh+username+hu+passwd+hp+dbname+hd+tablename+ht+h8+h9);
+                var ha="<tr class='afterAdd'><td><span>";
+                var hh ="</span></td><td><span>"; //id
+                var hu="</span></td><td><span>";  //username
+                var hp="</span></td><td><span>"; //password
+                var hd="</span></td><td><span>";  //age
+                var ht="</span></td><td><span>";
+                var hr="<td><span><a href='javascript:void(0)' onclick='del(this)'>删除</a></td></tr>";
+                $("#Export").after(ha+alias+hh+host+hu+username+hp+passwd+hd+dbname+ht+tablename+hr);
             });
+            $("#addImportBtn").click(function(){
+                var alias =($("#ImportDb input[name=alias]").val());
+                var host =($("#ImportDb input[name=host]").val());
+                var username =($("#ImportDb input[name=username]").val());
+                var passwd =($("#ImportDb input[name=passwd]").val());
+                var dbname =($("#ImportDb input[name=dbname]").val());
+                var tablename =($("#ImportDb input[name=tablename]").val());
 
-
-            $(":checkbox[name=allCheck]").click(function(){
-                //方式一
-                //获取当前标签是否选中的boolean值
-                /*       var status = this.checked;
-                         //获取其他新增的复选框
-                         var checks = $(":checkbox[name=ck]");
-                         if(status){
-                                   //添加属性
-                                   //prop：获取在匹配的元素集中的第一个元素的属性值
-                                   //prop(参数一，参数二)：参数一：标签名；参数二，参数属性
-                                   checks.prop("checked",status);
-                         }else{
-                                   checks.prop("checked",false);
-                         } */
-
-                //方式二
-                $(":checkbox[name=ck]").prop("checked",this.checked);
+                var ha="<tr class='afterAdd'><td><span>";
+                var hh ="</span></td><td><span>"; //id
+                var hu="</span></td><td><span>";  //username
+                var hp="</span></td><td><span>"; //password
+                var hd="</span></td><td><span>";  //age
+                var ht="</span></td><td><span>";
+                var hr="<td><span><a href='javascript:void(0)' onclick='del(this)'>删除</a></td></tr>";
+                $("#Import").after(ha+alias+hh+host+hu+username+hp+passwd+hd+dbname+ht+tablename+hr);
             });
-
-
-
-            //删除全部标签
-            $("#delAllID").click(function(){
-                //获取选中的复选框并通过爷爷来删除整一行
-                $(":checkbox[name=ck]:checked").parent().parent().remove();
-            });
-
         });
+
 
         //删除一个
         function del(obj){
-            //方式一
-            //获取父节点
-            //alert(obj.parentNode);
-
-            //方式二
-            //获取该标签的父标签的父标签然后移除自身
-            $(obj).parent().parent().remove();
+            $(obj).parent().parent().parent().remove();
 
         };
     </script>
 </head>
 
 <body>
+<h2>ExportDb</h2>
 <table border="1" width="800px" id="ExportDb">
-    <tr>
+    <tr id="Export">
         <th>alias</th>
         <th>host</th>
         <th>username</th>
@@ -92,14 +65,9 @@
         <th>dbname</th>
         <th>tablename</th>
     </tr>
-    <tr id="add">
-        <td colspan="6"><a href="javascript:void(0)" id="delAllID"  >全部删除</a></td>
-    </tr>
-
 </table>
-
 <hr/>
-<form>
+<form id="ExportDb">
     <table border="1" width="300px">
         <tr>
             <td>alias</td>
@@ -133,63 +101,60 @@
         </tr>
     </table>
 </form>
-<table border="1" width="600px">
-    <tr>
-        <th>编号</th>
-        <th>用户名</th>
-        <th>密码</th>
-        <th>年龄</th>
-        <th>住址</th>
-        <th>操作</th>
+<h2>ImportDb</h2>
+<table border="1" width="800px" id="ImportDb">
+    <tr id="Import">
+        <th>alias</th>
+        <th>host</th>
+        <th>username</th>
+        <th>passwd</th>
+        <th>dbname</th>
+        <th>tablename</th>
     </tr>
-    <tr id="add">
-        <td colspan="6"><a href="javascript:void(0)" id="delAllID"  >全部删除</a></td>
-    </tr>
-
 </table>
-
 <hr/>
-<form>
+<form id="ImportDb">
     <table border="1" width="300px">
         <tr>
-            <td>编号</td>
-            <td><input type="text" name="id" value="1"/></td>
+            <td>alias</td>
+            <td><input type="text" name="alias" value=""/></td>
         </tr>
         <tr>
-            <td>用户名</td>
-            <td><input type="text" name="userName" value="2"/></td>
+            <td>host</td>
+            <td><input type="text" name="host" value=""/></td>
         </tr>
         <tr>
-            <td>密码</td>
-            <td><input type="password" name="userPass"/></td>
+            <td>username</td>
+            <td><input type="text" name="username" value=""/></td>
         </tr>
         <tr>
-            <td>年龄</td>
-            <td><input type="text" name="age"/></td>
+            <td>passwd</td>
+            <td><input type="text" name="passwd" value=""/></td>
         </tr>
         <tr>
-            <td>住址</td>
-            <td><input type="text" name="c"/></td>
+            <td>dbname</td>
+            <td><input type="text" name="dbname" value=""/></td>
+        </tr>
+        <tr>
+            <td>tablename</td>
+            <td><input type="text" name="tablename" value=""/></td>
         </tr>
         <tr>
             <td colspan="2" align="center">
-                <input type="button" value="添加" id="addBtn"/>
+                <input type="button" value="添加" id="addImportBtn"/>
                 <input type="reset" value="重置"/>
             </td>
         </tr>
     </table>
 </form>
 <table border="1" width="600px">
-    <tr>
+    <tr id="ImportDb">
         <th>编号</th>
         <th>用户名</th>
         <th>密码</th>
         <th>年龄</th>
         <th>住址</th>
         <th>操作</th>
-    </tr>
-    <tr id="add">
-        <td colspan="6"><a href="javascript:void(0)" id="delAllID"  >全部删除</a></td>
     </tr>
 
 </table>
