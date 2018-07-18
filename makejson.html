@@ -15,10 +15,10 @@
                 var tablename =($("#ExportDb input[name=tablename]").val());
 
                 var ha="<tr class='afterAdd ExportDb'><td>";
-                var hh="</td><td>"; //id
-                var hu="</td><td>";  //username
-                var hp="</td><td>"; //password
-                var hd="</td><td>";  //age
+                var hh="</td><td>";
+                var hu="</td><td>";
+                var hp="</td><td>";
+                var hd="</td><td>";
                 var ht="</td><td>";
                 var hr="</td><td><span><a href='javascript:void(0)' onclick='del(this)'>删除</a></td></tr>";
                 $("#Export").after(ha+alias+hh+host+hu+username+hp+passwd+hd+dbname+ht+tablename+hr);
@@ -32,10 +32,10 @@
                 var tablename =($("#ImportDb input[name=tablename]").val());
 
                 var ha="<tr class='afterAdd ImportDb'><td>";
-                var hh="</td><td>"; //id
-                var hu="</td><td>";  //username
-                var hp="</td><td>"; //password
-                var hd="</td><td>";  //age
+                var hh="</td><td>";
+                var hu="</td><td>";
+                var hp="</td><td>";
+                var hd="</td><td>";
                 var ht="</td><td>";
                 var hr="</td><td><span><a href='javascript:void(0)' onclick='del(this)'>删除</a></td></tr>";
                 $("#Import").after(ha+alias+hh+host+hu+username+hp+passwd+hd+dbname+ht+tablename+hr);
@@ -50,9 +50,9 @@
                     return;
                 }
                 var ht="<tr class='afterAdd FieldRule'><td>";
-                var hs="</td><td>"; //id
-                var hf="</td><td>";  //username
-                var he="</td><td>"; //password
+                var hs="</td><td>";
+                var hf="</td><td>";
+                var he="</td><td>";
                 var hr="</td><td><span><a href='javascript:void(0)' onclick='del(this)'>删除</a></td></tr>";
                 $("#Fieldrule").after(ht+targetField+hs+sourceField+hf+feildRule+he+extraData+hr);
                 $("#resetField").trigger('click');
@@ -165,7 +165,6 @@
         };
     </script>
 </head>
-
 <body>
 <h2>ImportDb（导入alias 不可重复）</h2>
 <table border="1" width="800px" id="ImportDb">
