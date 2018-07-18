@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>编辑规则</title>
+    <title>规则</title>
     <meta http-equiv="Content-Type" content="text/html" charset="utf-8">
     <script type="text/javascript" src="jquery-1.7.2.min.js"></script>
     <script type="text/javascript">
@@ -63,6 +63,7 @@
             $json['ExportDb']={};
             $json['ImportDb']={};
             $json['Fieldrule']={};
+            var flag=true;
             //选取ExportDb的所有内容
             $(".ExportDb").each(function () {
                 var exportdb=[];
@@ -77,6 +78,11 @@
                 // dbconfig['dbname']=exportdb[4];
                 // dbconfig['tablename']=exportdb[5];
                 // $json['ExportDb'][exportdb[0]]=dbconfig;
+                if($json['ExportDb'].hasOwnProperty(exportdb[0])){
+                    flag=false;
+                    alert('ExportDb导出表别名已存在!');
+                    return false;
+                }
                 $json['ExportDb'][exportdb[0]]={
                     'host': exportdb[1],
                     "port": '3306',
@@ -101,6 +107,11 @@
                 // dbconfig['dbname']=importdb[4];
                 // dbconfig['tablename']=importdb[5];
                 // $json['ImportDb'][importdb[0]]=dbconfig;
+                if($json['ImportDb'].hasOwnProperty(importdb[0])){
+                    flag=false;
+                    alert('ImportDb导入表别名已存在!');
+                    return false;
+                }
                 $json['ImportDb'][importdb[0]]={
                     'host': importdb[1],
                     "port": '3306',
@@ -116,6 +127,11 @@
                 $(this).children('td').each(function(j){  // 遍历 tr 的各个 td
                     field.push($(this).text())
                 });
+                if($json['Fieldrule'].hasOwnProperty(field[0])){
+                    flag=false;
+                    alert('Fieldrule导入字段不唯一!');
+                    return false;
+                }
                 console.log(field);
                 if(field[2]=='OnetoOne'){
                     $json['Fieldrule'][field[0]]=[field[1],field[2],field[3]];
@@ -124,8 +140,10 @@
                 }
                 console.log($json);
             });
-            jsonstr=JSON.stringify($json);
-            funDownload(jsonstr, 'config.json');
+            if(flag){
+                jsonstr=JSON.stringify($json);
+                funDownload(jsonstr, 'config.json');
+            }
         }
         //删除一个
         function del(obj){
