@@ -16,11 +16,14 @@ import (
 	"github.com/cihub/seelog"
 	"database/sql"
 	"os"
+	"runtime"
 )
 
 func main() {
 	SetLogger("logConfig.xml")
-	config_path := flag.String("c","/home/manu/sample/","config_file path")
+	cpunumber:=runtime.NumCPU()//导入进程做好是cpu的两倍
+	config_path := flag.String("c","./config.json","config_file path")
+	goruntimeNumber:=flag.Float64("n",5000.00,"每个导入携程处理数量")
 	flag.Parse()
 	fmt.Printf("配置文件位置 : %s\n",*config_path)
 	content,err:=ioutil.ReadFile(*config_path)
@@ -123,8 +126,8 @@ func main() {
 			value:=transferdata.Data
 			seelog.Infof("处理导出%s导出数据共%d条数据",key,len(value))
 			var ig sync.WaitGroup
-			ProcessChan := make(chan struct{}, 20)
-			goroutineNumber:=5000.00
+			ProcessChan := make(chan struct{}, cpunumber*2)//导入进程是cpu*2
+			goroutineNumber:=*goruntimeNumber
 			GoroutineNumber := int(goroutineNumber)
 			goNumber := math.Ceil(float64(len(value)) / goroutineNumber)
 			for i := 0; i < int(goNumber); i++ {
@@ -139,7 +142,7 @@ func main() {
 				//fmt.Println(tempSlice)
 				//os.Exit(1)
 				Importslice:=make(map[string][]map[string]string)
-				seelog.Infof("处理导出%s导出数据第%d到%d数据",key,start,end)
+				seelog.Infof("处理导出%s导出数 据第%d到%d数据",key,start,end)
 				for _,values:=range tempSlice{
 					//seelog.Infof(values)
 					for _,Importable:=range ExImRelation[key]{

@@ -38,18 +38,17 @@
     }
 }
 ```
+# 使用 
+main.exe |-c string "配置文件位置(./config.json)" | -n float 每个协程导入数据数量 (默认5000.00)
+## 示例
+个人设置
+main.exe -c "./config.json" -n 5000.00
+# mysql配置修改
+导入max_allowed_packets(每次导入数据量*每条数据大小/1024 一般8M就够够的了)
+# makejson.html
+1.生成config.json 文件 (导入字段唯一)
 # movedb
-Json 必须严格按照此模式来书写
-可以现在php里面写好然后json_encode一下
-- ExportDb ImportDb Fieldrule 三个字段写不动
-- 导入目标字段在Fieldrule中必须唯一,所以现在仅支持一个表拆分成两个表 单表对单表
-- 5000记录做一次插入操作,同时保证5个goruntime持续写入数据,根据自己数据库更改,当插入数据较大是需要改变数据库配置 max_allowed_packets
-- 字段对应关系现在只有两种
 1. Default(原样输出)
 2. OnetoOne(一一对应)例如以上例子中的 1,2(导出数据可能存在值):0,1(导入数据对应值)
-
-1,2 | 0,1
----|---
-导出数据可能存在值 | 导入数据对应值
 
 
