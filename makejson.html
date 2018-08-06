@@ -57,12 +57,25 @@
                 $("#Fieldrule").after(ht+targetField+hs+sourceField+hf+feildRule+he+extraData+hr);
                 $("#resetField").trigger('click');
             });
+            $("#addTableBtn").click(function(){
+                var ExportTable =($("#TableruleFrom input[name=ExportTable]").val());
+                var ImportTable =($("#TableruleFrom input[name=ImportTable]").val());
+                var TableRule =($("#TableruleFrom input[name=TableRule]").val());
+                var he="<tr class='afterAdd TableRule'><td>";
+                var hi="</td><td>";
+                var ht="</td><td>";
+                var hr="</td><td><span><a href='javascript:void(0)' onclick='del(this)'>删除</a></td></tr>";
+                $("#Tablerule").after(he+ExportTable+hi+ImportTable+ht+TableRule+hr);
+                $("#resetField").trigger('click');
+            });
         });
         function makejson() {
             $json={};
             $json['ExportDb']={};
             $json['ImportDb']={};
             $json['Fieldrule']={};
+            $json['Tablerule']={};
+            $json['RuleField']={};
             var flag=true;
             //选取ExportDb的所有内容
             $(".ExportDb").each(function () {
@@ -138,6 +151,28 @@
                 }else{
                     $json['Fieldrule'][field[0]]=[field[1],field[2]];
                 }
+                console.log($json);
+            });
+            $(".TableRule").each(function () {
+                var field=[];
+                $(this).children('td').each(function(j){  // 遍历 tr 的各个 td
+                    field.push($(this).text())
+                });
+                // if($json['Fieldrule'].hasOwnProperty(field[0])){
+                //     $json['RuleField'][$field[0]].push($field[2]);
+                // }else{
+                //     $json['RuleField'][$field[0]]=$field[2];
+                // }
+                //正则匹配出用户条件判断的字段
+                var reg=/\$\w+/g;
+                var condtion=field[2];
+                var ruleField_arr=condtion.match(reg);
+                alert(ruleField_arr);
+                for (var i in ruleField_arr){
+                    $json['RuleField'][$field[0]].push(ruleField_arr[i])
+                }
+                console.log(field);
+                $json['Tablerule'][field[0]+field[1]]=field[2];
                 console.log($json);
             });
             if(flag){
@@ -294,6 +329,40 @@
         <tr>
             <td colspan="2" align="center">
                 <input type="button" value="添加" id="addFieldBtn"/>
+                <input type="reset" value="重置" id="resetField"/>
+            </td>
+        </tr>
+    </table>
+</form>
+
+
+<h2>Tablerule</h2>
+<table border="1" width="600px">
+    <tr id="Tablerule">
+        <th>ExportTable</th>
+        <th>ImportTable</th>
+        <th>TableRule</th>
+    </tr>
+
+</table>
+<hr/>
+<form id="TableruleFrom">
+    <table border="1" width="300px">
+        <tr>
+            <td>ExportTable</td>
+            <td><input type="text" name="ExportTable" placeholder="导出表别名 b"/></td>
+        </tr>
+        <tr>
+            <td>ImportTable</td>
+            <td><input type="text" name="ImportTable" placeholder="导入表别名 a"/></td>
+        </tr>
+        <tr>
+            <td>TableRule</td>
+            <td><input type="text" name="TableRule" placeholder="$account_type eq 'coupon' and $number egt 10"/></td>
+        </tr>
+        <tr>
+            <td colspan="2" align="center">
+                <input type="button" value="添加" id="addTableBtn"/>
                 <input type="reset" value="重置" id="resetField"/>
             </td>
         </tr>

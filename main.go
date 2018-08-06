@@ -17,6 +17,8 @@ import (
 	"database/sql"
 	"os"
 	"runtime"
+	"github.com/robertkrimen/otto"
+	"regexp"
 )
 
 func main() {
@@ -34,6 +36,7 @@ func main() {
 		ExportDb map[string]map[string]string
 		ImportDb map[string]map[string]string
 		Fieldrule map[string][]string
+		Tablerule map[string]string
 	}
 	var inter Conifg
 	jsonerr := json.Unmarshal(content, &inter)
@@ -83,7 +86,7 @@ func main() {
 			}
 			//parse condition from neq eq egt elt
 	}
-		//fmt.Println(ImportTableFieldRelation)
+		//fmt.Println(ExImRelation)
 		//os.Exit(1)
 		var Transferchan=make(chan exporter.Tranferdata,len(inter.ExportDb))
 		//通道的方式传递数据
@@ -120,6 +123,8 @@ func main() {
 		//从导出的数据入手 导出的数据多有几个那么就遍历这些数据
 		beginTime := time.Now().Unix()
 		var DbInstance=make(map[string]*sql.DB)
+		ConditionRegexp :=strings.NewReplacer("neq","!=","eq","==","egt",">=","gt",">","elt","<= ","lt","<")
+		relationRegexp :=strings.NewReplacer("and","&&","or","||")
 		for transferdata:=range Transferchan {
 			//每次导入5000数据
 			key:=transferdata.TableName
@@ -143,9 +148,26 @@ func main() {
 				//os.Exit(1)
 				Importslice:=make(map[string][]map[string]string)
 				seelog.Infof("处理导出%s导出数 据第%d到%d数据",key,start,end)
+				vm := otto.New()
 				for _,values:=range tempSlice{
 					//seelog.Infof(values)
 					for _,Importable:=range ExImRelation[key]{
+						//如果有条件限制 就取出条件限制
+						//example $account_type eq 'money' and id egt 5000
+						//transfer $account_type == 'money' && id >= 5000
+						if _,ok:=inter.Tablerule[key+Importable];ok{
+							javascript:=relationRegexp.Replace(ConditionRegexp.Replace(inter.Tablerule[key+Importable]));
+							var reg=regexp.MustCompile("\\$\\w+")
+							javascript=string(reg.ReplaceAllFunc([]byte(javascript), func(i []byte) []byte {
+								return []byte(fmt.Sprintf("%q",values[strings.Replace(string(i),"$","",-1)]))
+							}))
+							//将条件转换成js语句 用虚拟机执行返回执行结果如果是false 那么就跳过表
+							jsres,_:=vm.Run(javascript)
+							res,_:=jsres.ToBoolean()
+							if !res{
+								continue;
+							}
+						}
 						var rowdata=make(map[string]string)
 						//seelog.Infof(key.(string)+Importable)
 						for _,exportfield:= range exportField[key]  {
