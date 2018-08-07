@@ -164,18 +164,33 @@
                 //     $json['RuleField'][$field[0]]=$field[2];
                 // }
                 //正则匹配出用户条件判断的字段
-                var reg=/\$\w+/g;
+                var reg=/\$(\w+)/g;
                 var condtion=field[2];
                 var ruleField_arr=condtion.match(reg);
-                alert(ruleField_arr);
                 for (var i in ruleField_arr){
-                    $json['RuleField'][$field[0]].push(ruleField_arr[i])
+                    if($json['RuleField'][field[0]]){
+                        $json['RuleField'][field[0]].push(ruleField_arr[i].replace('\$',''))
+                    }else{
+                        $json['RuleField'][field[0]]=[];
+                        $json['RuleField'][field[0]].push(ruleField_arr[i].replace('\$',''))
+                    }
                 }
                 console.log(field);
                 $json['Tablerule'][field[0]+field[1]]=field[2];
                 console.log($json);
             });
             if(flag){
+                //把jsonRuleField 去一下重 然后在json
+                for(var tablename in $json['RuleField']){
+                    var temp = [];
+                    for(var i = 0; i < $json['RuleField'][tablename].length; i++) {
+                        //如果当前数组的第i项在当前数组中第一次出现的位置是i，才存入数组；否则代表是重复的
+                        if($json['RuleField'][tablename].indexOf($json['RuleField'][tablename][i]) == i){
+                            temp.push($json['RuleField'][tablename][i])
+                        }
+                    }
+                    $json['RuleField'][tablename]=temp;
+                }
                 jsonstr=JSON.stringify($json);
                 funDownload(jsonstr, 'config.json');
             }

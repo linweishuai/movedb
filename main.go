@@ -22,42 +22,43 @@ import (
 )
 
 func main() {
-	SetLogger("logConfig.xml")
-	cpunumber:=runtime.NumCPU()//导入进程做好是cpu的两倍
-	config_path := flag.String("c","./config.json","config_file path")
-	goruntimeNumber:=flag.Float64("n",5000.00,"每个导入携程处理数量")
-	flag.Parse()
-	fmt.Printf("配置文件位置 : %s\n",*config_path)
-	content,err:=ioutil.ReadFile(*config_path)
-	 if err!=nil{
-		seelog.Infof("读取配置文件出错")
-	}
-	type Conifg struct {
-		ExportDb map[string]map[string]string
-		ImportDb map[string]map[string]string
-		Fieldrule map[string][]string
-		Tablerule map[string]string
-	}
-	var inter Conifg
-	jsonerr := json.Unmarshal(content, &inter)
-	if jsonerr != nil {
-		seelog.Infof("error in translating,", err.Error())
-		return
-	}
-	//解析出要导出的所有字段
-	var exportField=make(map[string][]string)
-	//var ExportResult sync.Map
-	//fmt.Print(inter.Fieldrule)
-	var ImportTableFieldRelation=make(map[string][]string)//导入数据库的字段
-	var ExImRelation=make(map[string][]string)//标注我导出的数据导入到那些表里面去
-	var tempmap=make(map[string]struct{})//临时表
-	var exportFieldtemp=make(map[string]struct{})
-	type Fieldrule struct {
-		TransferRule string
-		ExtraData [][]string
-	}
-	var NewFeildmap=make(map[string]Fieldrule)
-	for Importtarget,exportsource:=range inter.Fieldrule{
+		SetLogger("logConfig.xml")
+		cpunumber:=runtime.NumCPU()//导入进程做好是cpu的两倍
+		config_path := flag.String("c","./config.json","config_file path")
+		goruntimeNumber:=flag.Float64("n",5000.00,"每个导入携程处理数量")
+		flag.Parse()
+		fmt.Printf("配置文件位置 : %s\n",*config_path)
+		content,err:=ioutil.ReadFile(*config_path)
+		 if err!=nil{
+			seelog.Infof("读取配置文件出错")
+		}
+		type Conifg struct {
+			ExportDb map[string]map[string]string
+			ImportDb map[string]map[string]string
+			Fieldrule map[string][]string
+			Tablerule map[string]string
+			RuleField map[string][]string
+		}
+		var inter Conifg
+		jsonerr := json.Unmarshal(content, &inter)
+		if jsonerr != nil {
+			seelog.Infof("error in translating,", err.Error())
+			return
+		}
+		//解析出要导出的所有字段
+		var exportField=make(map[string][]string)
+		//var ExportResult sync.Map
+		//fmt.Print(inter.Fieldrule)
+		var ImportTableFieldRelation=make(map[string][]string)//导入数据库的字段
+		var ExImRelation=make(map[string][]string)//标注我导出的数据导入到那些表里面去
+		var tempmap=make(map[string]struct{})//临时表
+		var exportFieldtemp=make(map[string]struct{})
+		type Fieldrule struct {
+			TransferRule string
+			ExtraData [][]string
+		}
+		var NewFeildmap=make(map[string]Fieldrule)
+		for Importtarget,exportsource:=range inter.Fieldrule{
 			//TODO importtarget not ready
 			ImporttableFieldslice:=strings.Split(Importtarget,".")
 			ImportTableFieldRelation[ImporttableFieldslice[0]]=append(ImportTableFieldRelation[ImporttableFieldslice[0]],ImporttableFieldslice[1])
@@ -84,10 +85,14 @@ func main() {
 				TransferRule:exportsource[1],
 				ExtraData:ExtraData,
 			}
-			//parse condition from neq eq egt elt
-	}
+		}
 		//fmt.Println(ExImRelation)
 		//os.Exit(1)
+		//这是时候加上rulefield 里面的追加字段
+		for ruletablename,rulefieldslice:=range inter.RuleField{
+			exportField[ruletablename]=append(exportField[ruletablename],rulefieldslice...)
+		}
+
 		var Transferchan=make(chan exporter.Tranferdata,len(inter.ExportDb))
 		//通道的方式传递数据
 		var ExporterMap=make(map[string]exporter.Exporter);
