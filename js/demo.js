@@ -187,10 +187,6 @@ function getModelElementStr(type)
     var properties = dbobject[type].field;
     list += parseProperties(type,properties);
     list += '</ul>';
-
-
-
-
 	return list;
 }
 /**
