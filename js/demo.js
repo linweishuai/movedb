@@ -119,30 +119,31 @@ function setLeftMenu(dbobject)
 function CreateModel(ui, selector)
 {
 	var modelId = $(ui.draggable).attr("id");
-	var id = modelId + "_model_" + modelCounter++;
+	var model_id = modelId + "_model_" + modelCounter++;
 	var type = $(ui.draggable).attr("model_type");
-	$(selector).append('<div class="model" id="' + id 
+	$(selector).append('<div class="model" id="' + model_id
 			+ '" modelType="'+ type +'">' 
 			+ getModelElementStr(type) + '</div>');
 	var left = parseInt(ui.offset.left - $(selector).offset().left);
 	var top = parseInt(ui.offset.top - $(selector).offset().top);
-	$("#"+id).css("position","absolute").css("left",left).css("top",top);
-	//计算添加连接点如果是导出的话 就把锚点设置为右边 导入的话就设置为左边
-	var anchor_lenth=dbobject[type]['field'].length+1;
-	var jiange=parseFloat(parseFloat(1/anchor_lenth).toFixed(2));
-	var jiange_half=parseFloat(parseFloat(jiange/2).toFixed(2))+0.01;
+	$("#"+model_id).css("position","absolute").css("left",left).css("top",top);
+	// //计算添加连接点如果是导出的话 就把锚点设置为右边 导入的话就设置为左边
+	// var anchor_lenth=dbobject[type]['field'].length+1;
+	// var jiange=parseFloat(parseFloat(1/anchor_lenth).toFixed(2));
+	// var jiange_half=parseFloat(parseFloat(jiange/2).toFixed(2))+0.01;
 	if(dbobject[type].is_export==1){
         var x_position=1;
 	}else{
         var x_position=0;
 	}
 	//添加一个表级锚点
-    instance.addEndpoint(id, { anchors: "TopCenter" }, hollowCircle);
-	for(var i=1;i<anchor_lenth;i++){
-        instance.addEndpoint(id, { anchors: [[x_position,i*jiange+jiange_half]] }, hollowCircle);
+    instance.addEndpoint(model_id, { anchors: "TopCenter" }, hollowCircle);
+	for(var i in dbobject[type]['field']){
+		var id=type+'.'+dbobject[type]['field'][i];
+        instance.addEndpoint(id, { anchors: [[x_position,0.5]] }, hollowCircle);
 	}
 	//注册实体可draggable
-	$("#" + id).draggable({
+	$("#" + model_id).draggable({
 		containment: "parent",
 		drag: function (event, ui) {
 			instance.repaintEverything();
@@ -198,8 +199,8 @@ function parseProperties(type,obj)
 {
 	var str = "";
 	for(var v in obj){
-        str += '<li><input type="checkbox" name="'
-            + type+'.'+[v] + '" value="'
+        str += '<li id="'+type+'.'+obj[v]+'"><input type="checkbox" name="'
+            + type+'.'+obj[v] + '" value="'
             + type+'.'+obj[v] + '">'
             + type+'.'+obj[v] + '</li>';	}
 	return str;
