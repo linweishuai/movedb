@@ -349,6 +349,7 @@ function removeElement(obj)
 function saveallConn() {
     var connections = instance.getConnections();
     $json['Fieldrule']={};
+    $json['RuleField']={};
     for (var i in connections){
     	var conndata=connections[i].getData();
     	if(conndata[0]=='field'){
@@ -384,6 +385,7 @@ function saveallConn() {
         $json['RuleField'][tablename]=temp;
     }
     jsonstr=JSON.stringify($json);
+    //传到后台执行
     console.log(jsonstr);
     funDownload(jsonstr, 'config.json');
 }

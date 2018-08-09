@@ -19,8 +19,8 @@
 	            init(connInfo.connection);
 	        });
 		instance.bind("dblclick", function (conn, originalEvent) {
-	           if (confirm("要删除从 " + conn.source.getElementsByTagName("span")[0].innerHTML 
-			   + " —— " + conn.target.getElementsByTagName("span")[0].innerHTML + " 的连接么?")){
+	           if (confirm("要删除从 " + conn.sourceId
+			   + " —— " + conn.targetId)){
 				    instance.detach(conn);
 			   }
 	        });

@@ -93,7 +93,6 @@ func main() {
 			exportField[ruletablename]=append(exportField[ruletablename],rulefieldslice...)
 			exportField[ruletablename]=RemoveRepByLoop(exportField[ruletablename]);
 		}
-
 		var Transferchan=make(chan exporter.Tranferdata,len(inter.ExportDb))
 		//通道的方式传递数据
 		var ExporterMap=make(map[string]exporter.Exporter);
