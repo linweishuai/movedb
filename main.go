@@ -88,9 +88,10 @@ func main() {
 		}
 		//fmt.Println(ExImRelation)
 		//os.Exit(1)
-		//这是时候加上rulefield 里面的追加字段
+		//这是时候加上rulefield 里面的追加字段 并且去重
 		for ruletablename,rulefieldslice:=range inter.RuleField{
 			exportField[ruletablename]=append(exportField[ruletablename],rulefieldslice...)
+			exportField[ruletablename]=RemoveRepByLoop(exportField[ruletablename]);
 		}
 
 		var Transferchan=make(chan exporter.Tranferdata,len(inter.ExportDb))
@@ -277,4 +278,20 @@ func SetLogger(fileName string) {
 		seelog.ReplaceLogger(logger)
 	}
 
+}
+func RemoveRepByLoop(slc []string) []string {
+	result := []string{}  // 存放结果
+	for i := range slc{
+		flag := true
+		for j := range result{
+			if slc[i] == result[j] {
+				flag = false  // 存在重复元素，标识为false
+				break
+			}
+		}
+		if flag {  // 标识为false，不添加进结果
+			result = append(result, slc[i])
+		}
+	}
+	return result
 }
