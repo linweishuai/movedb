@@ -7,6 +7,7 @@ $json['ImportDb']={};
 $json['Fieldrule']={};
 $json['RuleField']={};
 $json['Tablerule']={};
+dragtable=[];
 dbobject=[];
 function getdbinfo() {
     var alias =($("#adddbobject input[name=alias]").val());
@@ -127,6 +128,11 @@ function CreateModel(ui, selector)
 	var modelId = $(ui.draggable).attr("id");
 	var model_id = modelId + "_wojiubuxinnengyourenhewoyiyang_" + modelCounter++;
 	var type = $(ui.draggable).attr("model_type");
+    //如果已经拖拽过 那么就不能再次拖拽了
+    if(dragtable[type]!=undefined){
+        alert('该表已经添加')
+        return;
+    }
 	$(selector).append('<div class="model" id="' + model_id
 			+ '" modelType="'+ type +'">' 
 			+ getModelElementStr(type) + '</div>');
@@ -143,7 +149,11 @@ function CreateModel(ui, selector)
 	for(var i in dbobject[type]['field']){
 		var id=type+'.'+dbobject[type]['field'][i];
         instance.addEndpoint(id, { anchors: [[x_position,0.5]] }, hollowCircle);
+        if(dbobject[type].is_export==1){//如果是导出表就两侧加上锚点
+            instance.addEndpoint(id, { anchors: [[0,0.5]] }, hollowCircle);
+        }
 	}
+    dragtable[type]=1;
 	//注册实体可draggable
 	$("#" + model_id).draggable({
 		containment: "parent",
@@ -342,6 +352,7 @@ function removeElement(obj)
         delete $json['ImportDb'][leftmenuid];
     }
     delete dbobject[leftmenuid];
+    delete dragtable[leftmenuid];
 
 	if(confirm("确定删除该模型？"))
 		instance.remove(element);
