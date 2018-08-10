@@ -20,10 +20,16 @@
 		instance.bind("dblclick", function (conn, originalEvent) {
 	           if (confirm("要删除从 " + conn.sourceId
 			   + " —— " + conn.targetId)){
+	               //从处处的fieldrule 里面删除掉
+                    var conndata=conn.getData();
+                    if(conndata[0]=='field'){
+                        //如果是field链接
+                        var target=conndata[1];
+                        $json['Fieldrule'][target]
+                    }
 				    instance.detach(conn);
 			   }
 	        });
-
     });
 </script>
 <style>
