@@ -1,486 +1,195 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>规则</title>
-    <meta http-equiv="Content-Type" content="text/html" charset="utf-8">
-    <script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
-    <script type="text/javascript" src="js/jquery-ui-1.10.3.custom.min.js"></script>
-    <script type="text/javascript" src="js/jsplumb.js"></script>
-    <style type="text/css">
-        #container {
-            border: 1px solid gray;
-            width: 100%;
-            height: 600px;
-        }
-    </style>
-    <script type="text/javascript">
-        $(document).ready( function(){
-            $("#adddbobject").click(function () {
-                var alias =($("#dbobject input[name=alias]").val());
-                var host =($("#dbobject input[name=host]").val());
-                var username =($("#dbobject input[name=username]").val());
-                var passwd =($("#dbobject input[name=passwd]").val());
-                var dbname =($("#dbobject input[name=dbname]").val());
-                var tablename =($("#dbobject input[name=tablename]").val());
-                //后台获取数据库对象
-                $.post("getDbinfo.php",{host:host,username:username,password:passwd,dbname:dbname,tablename:tablename},function(res){
-                    if(!res.status){
-                        alert(res.msg);
-                        return;
-                    }
-                    console.log(res);
-                    //创建视图
+<meta charset="UTF-8">
+<title>牛逼6666</title>
+<link rel="stylesheet" href="css/bootstrap.min.css" />
+<link rel="stylesheet" href="css/jquery-ui.custom.min.css" />
+<script type="text/javascript" src="js/jquery-2.1.4.min.js"></script>
+<script type="text/javascript" src="js/jquery-ui.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/jsPlumb-2.2.8.js"></script>
+<script type="text/javascript" src="js/demo.js"></script>
+<script type="text/javascript">
+	jQuery(document).ready(function(){
+//		setLeftMenu(metadata);
+		//监听新的连接
+		instance.bind("connection", function (connInfo, originalEvent) {
+	            init(connInfo.connection);
+	        });
+		instance.bind("dblclick", function (conn, originalEvent) {
+	           if (confirm("要删除从 " + conn.sourceId
+			   + " —— " + conn.targetId)){
+				    instance.detach(conn);
+			   }
+	        });
 
+    });
+</script>
+<style>
+#container {
+	height: 1800px;
+	position: relative;
+	border: 1px solid #666666;
+	background-color: #ffffff;
+	border-radius: 5px;
+	z-index: 0;
+	overflow: auto;
+}
+#container .model {
+	border: 1px solid #ddd;
+	border-radius: 5px;
+	margin-bottom: 0;
+	min-width: 160px;
+}
+#container .model .dbimport{
+     background-color: #438eb9;
+     text-align: center;
+     background-image: none;
+     font-size: 16px;
+     color: #fff;
+     border: 1px solid #438eb9;
+     margin: 0px;
+     height: 35px;
+     vertical-align: middle;
+     padding: 0 3px;
+     line-height: 30px;
+ }
+#container .model .dbexport{
+    background-color: #e41263;
+    text-align: center;
+    background-image: none;
+    font-size: 16px;
+    color: #fff;
+    border: 1px solid #438eb9;
+    margin: 0px;
+    height: 35px;
+    vertical-align: middle;
+    padding: 0 3px;
+    line-height: 30px;
+}
+#container .model h4 a{
+	color: #fff!important;
+}
+#container .model ul{
+	border: 1px solid #62a8d1;
+	overflow: auto;
+	margin: 0px;
+	width: 100%;
+	padding: 0px;
+}
+#container .model ul li{
+	border-bottom: 1px solid #62a8d1;
+	font-size: 18px;
+	list-style-type: none;
+}
+.jtk-endpoint, .endpointTargetLabel, .endpointSourceLabel {
+    cursor: pointer;
+}
 
-
-
-
-
-
-
-
-
-                },'json');
-            });
-
-            $("#addExportBtn").click(function(){
-                var alias =($("#ExportDb input[name=alias]").val());
-                var host =($("#ExportDb input[name=host]").val());
-                var username =($("#ExportDb input[name=username]").val());
-                var passwd =($("#ExportDb input[name=passwd]").val());
-                var dbname =($("#ExportDb input[name=dbname]").val());
-                var tablename =($("#ExportDb input[name=tablename]").val());
-
-                var ha="<tr class='afterAdd ExportDb'><td>";
-                var hh="</td><td>";
-                var hu="</td><td>";
-                var hp="</td><td>";
-                var hd="</td><td>";
-                var ht="</td><td>";
-                var hr="</td><td><span><a href='javascript:void(0)' onclick='del(this)'>删除</a></td></tr>";
-                $("#Export").after(ha+alias+hh+host+hu+username+hp+passwd+hd+dbname+ht+tablename+hr);
-            });
-            $("#addImportBtn").click(function(){
-                var alias =($("#ImportDb input[name=alias]").val());
-                var host =($("#ImportDb input[name=host]").val());
-                var username =($("#ImportDb input[name=username]").val());
-                var passwd =($("#ImportDb input[name=passwd]").val());
-                var dbname =($("#ImportDb input[name=dbname]").val());
-                var tablename =($("#ImportDb input[name=tablename]").val());
-
-                var ha="<tr class='afterAdd ImportDb'><td>";
-                var hh="</td><td>";
-                var hu="</td><td>";
-                var hp="</td><td>";
-                var hd="</td><td>";
-                var ht="</td><td>";
-                var hr="</td><td><span><a href='javascript:void(0)' onclick='del(this)'>删除</a></td></tr>";
-                $("#Import").after(ha+alias+hh+host+hu+username+hp+passwd+hd+dbname+ht+tablename+hr);
-            });
-            $("#addFieldBtn").click(function(){
-                var targetField =($("#Fieldrule input[name=targetField]").val());
-                var sourceField =($("#Fieldrule input[name=sourceField]").val());
-                var feildRule =($("#Fieldrule select[name=feildRule]").val());
-                var extraData =($("#Fieldrule input[name=extraData]").val());
-                if(feildRule=='OnetoOne'&&extraData==''){
-                    alert('设置为onetoone 必须填写对应列表');
-                    return;
-                }
-                var ht="<tr class='afterAdd FieldRule'><td>";
-                var hs="</td><td>";
-                var hf="</td><td>";
-                var he="</td><td>";
-                var hr="</td><td><span><a href='javascript:void(0)' onclick='del(this)'>删除</a></td></tr>";
-                $("#Fieldrule").after(ht+targetField+hs+sourceField+hf+feildRule+he+extraData+hr);
-                $("#resetField").trigger('click');
-            });
-            $("#addTableBtn").click(function(){
-                var ExportTable =($("#TableruleFrom input[name=ExportTable]").val());
-                var ImportTable =($("#TableruleFrom input[name=ImportTable]").val());
-                var TableRule =($("#TableruleFrom input[name=TableRule]").val());
-                var he="<tr class='afterAdd TableRule'><td>";
-                var hi="</td><td>";
-                var ht="</td><td>";
-                var hr="</td><td><span><a href='javascript:void(0)' onclick='del(this)'>删除</a></td></tr>";
-                $("#Tablerule").after(he+ExportTable+hi+ImportTable+ht+TableRule+hr);
-                $("#resetField").trigger('click');
-            });
-        });
-        function makejson() {
-            $json={};
-            $json['ExportDb']={};
-            $json['ImportDb']={};
-            $json['Fieldrule']={};
-            $json['Tablerule']={};
-            $json['RuleField']={};
-            var flag=true;
-            //选取ExportDb的所有内容
-            $(".ExportDb").each(function () {
-                var exportdb=[];
-                $(this).children('td').each(function(j){  // 遍历 tr 的各个 td
-                    exportdb.push($(this).text())
-                  });
-                // var dbconfig=[];
-                // dbconfig['host']=exportdb[1];
-                // dbconfig['port']='3306';
-                // dbconfig['username']=exportdb[2];
-                // dbconfig['passwd']=exportdb[3];
-                // dbconfig['dbname']=exportdb[4];
-                // dbconfig['tablename']=exportdb[5];
-                // $json['ExportDb'][exportdb[0]]=dbconfig;
-                if($json['ExportDb'].hasOwnProperty(exportdb[0])){
-                    flag=false;
-                    alert('ExportDb导出表别名已存在!');
-                    return false;
-                }
-                $json['ExportDb'][exportdb[0]]={
-                    'host': exportdb[1],
-                    "port": '3306',
-                    'username': exportdb[2],
-                    'passwd': exportdb[3],
-                    'dbname': exportdb[4],
-                    'tablename': exportdb[5],
-                };
-                console.log($json);
-            });
-            $(".ImportDb").each(function () {
-                var importdb=[];
-                $(this).children('td').each(function(j){  // 遍历 tr 的各个 td
-                    importdb.push($(this).text())
-                });
-                console.log(importdb);
-                // var dbconfig=[];
-                // dbconfig['host']=importdb[1];
-                // dbconfig['port']='3306';
-                // dbconfig['username']=importdb[2];
-                // dbconfig['passwd']=importdb[3];
-                // dbconfig['dbname']=importdb[4];
-                // dbconfig['tablename']=importdb[5];
-                // $json['ImportDb'][importdb[0]]=dbconfig;
-                if($json['ImportDb'].hasOwnProperty(importdb[0])){
-                    flag=false;
-                    alert('ImportDb导入表别名已存在!');
-                    return false;
-                }
-                $json['ImportDb'][importdb[0]]={
-                    'host': importdb[1],
-                    "port": '3306',
-                    'username': importdb[2],
-                    'passwd': importdb[3],
-                    'dbname': importdb[4],
-                    'tablename': importdb[5],
-                };
-                console.log($json);
-            });
-            $(".FieldRule").each(function () {
-                var field=[];
-                $(this).children('td').each(function(j){  // 遍历 tr 的各个 td
-                    field.push($(this).text())
-                });
-                if($json['Fieldrule'].hasOwnProperty(field[0])){
-                    flag=false;
-                    alert('Fieldrule导入字段不唯一!');
-                    return false;
-                }
-                console.log(field);
-                if(field[2]=='OnetoOne'){
-                    $json['Fieldrule'][field[0]]=[field[1],field[2],field[3]];
-                }else{
-                    $json['Fieldrule'][field[0]]=[field[1],field[2]];
-                }
-                console.log($json);
-            });
-            $(".TableRule").each(function () {
-                var field=[];
-                $(this).children('td').each(function(j){  // 遍历 tr 的各个 td
-                    field.push($(this).text())
-                });
-                // if($json['Fieldrule'].hasOwnProperty(field[0])){
-                //     $json['RuleField'][$field[0]].push($field[2]);
-                // }else{
-                //     $json['RuleField'][$field[0]]=$field[2];
-                // }
-                //正则匹配出用户条件判断的字段
-                var reg=/\$(\w+)/g;
-                var condtion=field[2];
-                var ruleField_arr=condtion.match(reg);
-                for (var i in ruleField_arr){
-                    if($json['RuleField'][field[0]]){
-                        $json['RuleField'][field[0]].push(ruleField_arr[i].replace('\$',''))
-                    }else{
-                        $json['RuleField'][field[0]]=[];
-                        $json['RuleField'][field[0]].push(ruleField_arr[i].replace('\$',''))
-                    }
-                }
-                console.log(field);
-                $json['Tablerule'][field[0]+field[1]]=field[2];
-                console.log($json);
-            });
-            if(flag){
-                //把jsonRuleField 去一下重 然后在json
-                for(var tablename in $json['RuleField']){
-                    var temp = [];
-                    for(var i = 0; i < $json['RuleField'][tablename].length; i++) {
-                        //如果当前数组的第i项在当前数组中第一次出现的位置是i，才存入数组；否则代表是重复的
-                        if($json['RuleField'][tablename].indexOf($json['RuleField'][tablename][i]) == i){
-                            temp.push($json['RuleField'][tablename][i])
-                        }
-                    }
-                    $json['RuleField'][tablename]=temp;
-                }
-                jsonstr=JSON.stringify($json);
-                funDownload(jsonstr, 'config.json');
-            }
-        }
-        //删除一个
-        function del(obj){
-            $(obj).parent().parent().parent().remove();
-
-        };
-        var funDownload = function (content, filename) {
-            var eleLink = document.createElement('a');
-            eleLink.download = filename;
-            eleLink.style.display = 'none';
-            // 字符内容转变成blob地址
-            var blob = new Blob([content]);
-            eleLink.href = URL.createObjectURL(blob);
-            // 触发点击
-            document.body.appendChild(eleLink);
-            eleLink.click();
-            // 然后移除
-            document.body.removeChild(eleLink);
-        };
-    </script>
+#leftMenu .dbexport{
+    height: 40px;
+    width: 150px;
+    background-color: #e41263;
+    border-radius: 5px;
+    font-size: 18px;
+    color: #fff;
+    text-align: center;
+    margin-bottom: 10px;
+    list-style-type: none;
+    vertical-align: middle;
+    line-height: 40px;
+    z-index: 1;
+    cursor: pointer;
+}
+#leftMenu .dbimport{
+    height: 40px;
+    width: 150px;
+    background-color: #438eb9;
+    border-radius: 5px;
+    font-size: 18px;
+    color: #fff;
+    text-align: center;
+    margin-bottom: 10px;
+    list-style-type: none;
+    vertical-align: middle;
+    line-height: 40px;
+    z-index: 1;
+    cursor: pointer;
+}
+</style>
 </head>
 <body>
-<h2>Dbobject</h2>
-<table border="1" width="800px">
-    <tr id="Import">
-        <th>alias</th>
-        <th>host</th>
-        <th>username</th>
-        <th>passwd</th>
-        <th>dbname</th>
-        <th>tablename</th>
-    </tr>
-</table>
-<hr/>
-<form id="ImportDb">
-    <table border="1" width="300px" id="dbobject">
-        <tr>
-            <td>alias</td>
-            <td><input type="text" name="alias" value="" placeholder="b"/></td>
-        </tr>
-        <tr>
-            <td>host</td>
-            <td><input type="text" name="host" value=""/></td>
-        </tr>
-        <tr>
-            <td>username</td>
-            <td><input type="text" name="username" value=""/></td>
-        </tr>
-        <tr>
-            <td>passwd</td>
-            <td><input type="text" name="passwd" value=""/></td>
-        </tr>
-        <tr>
-            <td>dbname</td>
-            <td><input type="text" name="dbname" value=""/></td>
-        </tr>
-        <tr>
-            <td>tablename</td>
-            <td><input type="text" name="tablename" value=""/></td>
-        </tr>
-        <tr>
-            <td colspan="2" align="center">
-                <input type="button" value="添加" id="adddbobject"/>
-                <input type="reset" value="重置"/>
-            </td>
-        </tr>
-    </table>
-</form>
-<div id="container">
+<div id="demo" style="margin:20px;">
+    <div style="padding: 10px;" id="adddbobject">
+        alias：<input type="text" value=''  name="alias" style="height: 32px;margin-right:5px;width: 30px;"/>
+        host：<input type="text" value=''  name="host" style="height: 32px;margin-right:5px;width: 120px;"/>
+        username：<input type="text" value='' name="username" style="height: 32px;margin-right:5px;width: 120px;"/>
+        passwd：<input type="text" value='' name="passwd" style="height: 32px;margin-right:5px;width: 150px;"/>
+        dbname：<input type="text" value='' name="dbname" style="height: 32px;margin-right:5px;width: 150px;"/>
+        tablename：<input type="text" value='' name="tablename"  style="	height: 32px;margin-right:5px;width: 100px;"/>
+        表类型：<select name="is_export" >
+        <option value="1">导出表</option>
+        <option value="0">导入表</option>
+    </select>
+        <button class="btn btn-white btn-info" type="button" onclick="getdbinfo()" style="display: inline-block;">
+            <i class="ace-icon fa fa-check bigger-120 blue"></i> 添加</button>
+    </div>
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-xs-2" style="min-height: 1800px;background-color: #62a8d1;border-radius:5px;padding-top: 12px;width: auto;">
+			<div class="content_wrap" style="width: 100%;">
+				<div class="left" style="width: 100%;">
+					<ul id="leftMenu" style="overflow: auto;margin: 0px;padding:0px;"></ul>
+				</div>
+			</div>
+		</div>
+		<div class="col-xs-10">
+			<div id="container"></div>
+		</div>
+	</div>
 </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!--<h2>ImportDb（导入alias 不可重复）</h2>-->
-<!--<table border="1" width="800px" id="ImportDb">-->
-    <!--<tr id="Import">-->
-        <!--<th>alias</th>-->
-        <!--<th>host</th>-->
-        <!--<th>username</th>-->
-        <!--<th>passwd</th>-->
-        <!--<th>dbname</th>-->
-        <!--<th>tablename</th>-->
-    <!--</tr>-->
-<!--</table>-->
-<!--<hr/>-->
-<!--<form id="ImportDb">-->
-    <!--<table border="1" width="300px">-->
-        <!--<tr>-->
-            <!--<td>alias</td>-->
-            <!--<td><input type="text" name="alias" value="" placeholder="b"/></td>-->
-        <!--</tr>-->
-        <!--<tr>-->
-            <!--<td>host</td>-->
-            <!--<td><input type="text" name="host" value=""/></td>-->
-        <!--</tr>-->
-        <!--<tr>-->
-            <!--<td>username</td>-->
-            <!--<td><input type="text" name="username" value=""/></td>-->
-        <!--</tr>-->
-        <!--<tr>-->
-            <!--<td>passwd</td>-->
-            <!--<td><input type="text" name="passwd" value=""/></td>-->
-        <!--</tr>-->
-        <!--<tr>-->
-            <!--<td>dbname</td>-->
-            <!--<td><input type="text" name="dbname" value=""/></td>-->
-        <!--</tr>-->
-        <!--<tr>-->
-            <!--<td>tablename</td>-->
-            <!--<td><input type="text" name="tablename" value=""/></td>-->
-        <!--</tr>-->
-        <!--<tr>-->
-            <!--<td colspan="2" align="center">-->
-                <!--<input type="button" value="添加" id="addImportBtn"/>-->
-                <!--<input type="reset" value="重置"/>-->
-            <!--</td>-->
-        <!--</tr>-->
-    <!--</table>-->
-<!--</form>-->
-<!--<h2>ExportDb（导出alias 不可重复）</h2>-->
-<!--<table border="1" width="800px" id="ExportDb">-->
-    <!--<tr id="Export">-->
-        <!--<th>alias</th>-->
-        <!--<th>host</th>-->
-        <!--<th>username</th>-->
-        <!--<th>passwd</th>-->
-        <!--<th>dbname</th>-->
-        <!--<th>tablename</th>-->
-    <!--</tr>-->
-<!--</table>-->
-<!--<hr/>-->
-<!--<form id="ExportDb">-->
-    <!--<table border="1" width="300px">-->
-        <!--<tr>-->
-            <!--<td>alias</td>-->
-            <!--<td><input type="text" name="alias" value="" placeholder="a"/></td>-->
-        <!--</tr>-->
-        <!--<tr>-->
-            <!--<td>host</td>-->
-            <!--<td><input type="text" name="host" value=""/></td>-->
-        <!--</tr>-->
-        <!--<tr>-->
-            <!--<td>username</td>-->
-            <!--<td><input type="text" name="username" value=""/></td>-->
-        <!--</tr>-->
-        <!--<tr>-->
-            <!--<td>passwd</td>-->
-            <!--<td><input type="text" name="passwd" value=""/></td>-->
-        <!--</tr>-->
-        <!--<tr>-->
-            <!--<td>dbname</td>-->
-            <!--<td><input type="text" name="dbname" value=""/></td>-->
-        <!--</tr>-->
-        <!--<tr>-->
-            <!--<td>tablename</td>-->
-            <!--<td><input type="text" name="tablename" value=""/></td>-->
-        <!--</tr>-->
-        <!--<tr>-->
-            <!--<td colspan="2" align="center">-->
-                <!--<input type="button" value="添加" id="addExportBtn"/>-->
-                <!--<input type="reset" value="重置"/>-->
-            <!--</td>-->
-        <!--</tr>-->
-    <!--</table>-->
-<!--</form>-->
-
-<!--<h2>Fieldrule（targetField必须唯一）</h2>-->
-<!--<table border="1" width="600px">-->
-    <!--<tr id="Fieldrule">-->
-        <!--<th>targetField</th>-->
-        <!--<th>sourceField</th>-->
-        <!--<th>feildRule</th>-->
-        <!--<th>extraData</th>-->
-    <!--</tr>-->
-
-<!--</table>-->
-<!--<hr/>-->
-<!--<form id="Fieldrule">-->
-    <!--<table border="1" width="300px">-->
-        <!--<tr>-->
-            <!--<td>targetField</td>-->
-            <!--<td><input type="text" name="targetField" placeholder="b.id(导入表别名.字段)"/></td>-->
-        <!--</tr>-->
-        <!--<tr>-->
-            <!--<td>sourceField</td>-->
-            <!--<td><input type="text" name="sourceField" placeholder="a.id(导出表别名.字段)"/></td>-->
-        <!--</tr>-->
-        <!--<tr>-->
-            <!--<td>feildRule</td>-->
-            <!--<td><select name="feildRule">-->
-                <!--<option value="Default">Default</option>-->
-                <!--<option value="OnetoOne">OnetoOne</option>-->
-            <!--</select></td>-->
-        <!--</tr>-->
-        <!--<tr>-->
-            <!--<td>extraData</td>-->
-            <!--<td><input type="text" name="extraData" placeholder="-1,0,1:1,2,3"/></td>-->
-        <!--</tr>-->
-        <!--<tr>-->
-            <!--<td colspan="2" align="center">-->
-                <!--<input type="button" value="添加" id="addFieldBtn"/>-->
-                <!--<input type="reset" value="重置" id="resetField"/>-->
-            <!--</td>-->
-        <!--</tr>-->
-    <!--</table>-->
-<!--</form>-->
-
-
-<!--<h2>Tablerule</h2>-->
-<!--<table border="1" width="600px">-->
-    <!--<tr id="Tablerule">-->
-        <!--<th>ExportTable</th>-->
-        <!--<th>ImportTable</th>-->
-        <!--<th>TableRule</th>-->
-    <!--</tr>-->
-
-<!--</table>-->
-<!--<hr/>-->
-<!--<form id="TableruleFrom">-->
-    <!--<table border="1" width="300px">-->
-        <!--<tr>-->
-            <!--<td>ExportTable</td>-->
-            <!--<td><input type="text" name="ExportTable" placeholder="导出表别名 b"/></td>-->
-        <!--</tr>-->
-        <!--<tr>-->
-            <!--<td>ImportTable</td>-->
-            <!--<td><input type="text" name="ImportTable" placeholder="导入表别名 a"/></td>-->
-        <!--</tr>-->
-        <!--<tr>-->
-            <!--<td>TableRule</td>-->
-            <!--<td><input type="text" name="TableRule" placeholder="$account_type eq 'coupon' and $number egt 10"/></td>-->
-        <!--</tr>-->
-        <!--<tr>-->
-            <!--<td colspan="2" align="center">-->
-                <!--<input type="button" value="添加" id="addTableBtn"/>-->
-                <!--<input type="reset" value="重置" id="resetField"/>-->
-            <!--</td>-->
-        <!--</tr>-->
-    <!--</table>-->
-<!--</form>-->
-<div style="text-align: center"><input type="button" value="生成config.json" size="200" style="width: 600px; height: 50px;" onclick="makejson()"></div>
+    <button class="btn-lg btn-white btn-info" style="width: 100%;margin: 10px;" type="button" onclick="saveallConn()" style="display: inline-block;">
+        <i class="ace-icon fa fa-check bigger-120 blue"></i> 保存</button>
+</div>
+<div id="myModal" class="modal fade" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="myModalLabel">请选择字段联系条件</h4>
+			</div>
+			<div class="modal-body">
+			连线类型:
+			<select id="modename">
+				<option value="Default">Default</option>
+				<option value="OnetoOne">OnetoOne</option>
+			</select>
+				Extra:<input type="text" name="extra" id="extra_data" value="">
+                <span>如果选择OnetoOne 模式 请选择相应的对应 -1,0,1:1,2,3</span>
+			</div>
+			<div class="modal-footer">
+				<button id="submit_label" type="button" class="btn btn-primary" data-dismiss="modal">确定</button>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="mytableModal" class="modal fade" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">请选择表与表联系条件</h4>
+            </div>
+            <div class="modal-body">
+                condition:<input type="text" name="extra" id="condition" value="">
+            </div>
+            <div class="modal-footer">
+                <button id="submit_tablelabel" type="button" class="btn btn-primary" data-dismiss="modal">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
 </body>
 </html>
