@@ -9,6 +9,8 @@
 <script type="text/javascript" src="js/jquery-ui.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
 <script type="text/javascript" src="js/jsPlumb-2.2.8.js"></script>
+<script type="text/javascript" src="js/jquery.panzoom.js"></script>
+<script type="text/javascript" src="js/jquery.mousewheel.js"></script>
 <script type="text/javascript" src="js/makejson.js"></script>
 <script type="text/javascript">
 	jQuery(document).ready(function(){
@@ -30,11 +32,12 @@
 				    instance.detach(conn);
 			   }
 	        });
+
     });
 </script>
 <style>
 #container {
-	height: 1800px;
+	height: 500px;
 	position: relative;
 	border: 1px solid #666666;
 	background-color: #ffffff;
@@ -42,13 +45,13 @@
 	z-index: 0;
 	overflow: auto;
 }
-#container .model {
+#container .modezoom .panzoom .model {
 	border: 1px solid #ddd;
 	border-radius: 5px;
 	margin-bottom: 0;
 	min-width: 160px;
 }
-#container .model .dbimport{
+#container .modezoom .panzoom .model .dbimport{
      background-color: #438eb9;
      text-align: center;
      background-image: none;
@@ -61,7 +64,7 @@
      padding: 0 3px;
      line-height: 30px;
  }
-#container .model .dbexport{
+#container .modezoom .panzoom .model .dbexport{
     background-color: #e41263;
     text-align: center;
     background-image: none;
@@ -74,17 +77,17 @@
     padding: 0 3px;
     line-height: 30px;
 }
-#container .model h4 a{
+#container .modezoom .panzoom .model h4 a{
 	color: #fff!important;
 }
-#container .model ul{
+#container .modezoom .panzoom .model ul{
 	border: 1px solid #62a8d1;
 	overflow: auto;
 	margin: 0px;
 	width: 100%;
 	padding: 0px;
 }
-#container .model ul li{
+#container .modezoom .panzoom .model ul li{
 	border-bottom: 1px solid #62a8d1;
 	font-size: 18px;
 	list-style-type: none;
@@ -143,7 +146,7 @@
     </div>
 <div class="container-fluid">
 	<div class="row">
-		<div class="col-xs-2" style="min-height: 1800px;background-color: #62a8d1;border-radius:5px;padding-top: 12px;width: auto;">
+		<div class="col-xs-2" style="min-height: 500px;background-color: #62a8d1;border-radius:5px;padding-top: 12px;width: auto;">
 			<div class="content_wrap" style="width: 100%;">
 				<div class="left" style="width: 100%;">
 					<ul id="leftMenu" style="overflow: auto;margin: 0px;padding:0px;"></ul>
@@ -151,7 +154,9 @@
 			</div>
 		</div>
 		<div class="col-xs-10">
-			<div id="container"></div>
+            <div class="parent">
+			    <div id="container"></div>
+            </div>
 		</div>
 	</div>
 </div>

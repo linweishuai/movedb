@@ -133,12 +133,24 @@ function CreateModel(ui, selector)
         alert('该表已经添加')
         return;
     }
-	$(selector).append('<div class="model" id="' + model_id
+	$(selector).append('<div id="'+model_id+'_zoom" class="modezoom"><div class="panzoom"><div class="model" id="' + model_id
 			+ '" modelType="'+ type +'">' 
-			+ getModelElementStr(type) + '</div>');
+			+ getModelElementStr(type) + '</div></div></div>');
 	var left = parseInt(ui.offset.left - $(selector).offset().left);
 	var top = parseInt(ui.offset.top - $(selector).offset().top);
-	$("#"+model_id).css("position","absolute").css("left",left).css("top",top);
+    $('#'+model_id+"_zoom").css("position","absolute").css("left",left).css("top",top);
+
+    var $section = $('#'+model_id+"_zoom");
+    var $panzoom = $section.find('.model').panzoom();
+    $panzoom.parent().on('mousewheel.focal', function( e ) {
+        e.preventDefault();
+        var delta = e.delta || e.originalEvent.wheelDelta;
+        var zoomOut = delta ? delta < 0 : e.originalEvent.deltaY > 0;
+        $panzoom.panzoom('zoom', zoomOut, {
+            animate: false,
+            focal: e
+        });
+    });
 	if(dbobject[type].is_export==1){
         var x_position=1;
 	}else{
