@@ -140,6 +140,8 @@ function CreateModel(ui, selector)
 	var top = parseInt(ui.offset.top - $(selector).offset().top);
     $('#'+model_id+"_zoom").css("position","absolute").css("left",left).css("top",top);
 
+
+    //todo锚点放大和缩小问题
     var $section = $('#'+model_id+"_zoom");
     var $panzoom = $section.find('.model').panzoom();
     $panzoom.parent().on('mousewheel.focal', function( e ) {
@@ -150,6 +152,7 @@ function CreateModel(ui, selector)
             animate: false,
             focal: e
         });
+        instance.repaintEverything();
     });
 	if(dbobject[type].is_export==1){
         var x_position=1;
