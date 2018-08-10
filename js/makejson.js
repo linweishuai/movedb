@@ -300,6 +300,7 @@ function setlabel(conn)
         conn.setData(tempdata)
 	}else {
         var sourcetable=sourceName.split('.')[0];
+        var targettable=sourceName.split('.')[0];
         if($json['ExportDb'][sourcetable]!=undefined){//如果是从来源表导出 那么说明连接是正确的
             var scource=sourceName;//来源
             var target=targetName;//目标
@@ -307,7 +308,7 @@ function setlabel(conn)
             var scource=targetName;//来源
             var target=sourceName;//目标
         }
-        if(target==scource){
+        if(sourcetable==targettable){
             alert('不可同表连接');
             instance.detach(conn);
         }
@@ -412,6 +413,7 @@ function saveallConn() {
 		eleLink.click();
 		// 然后移除
 		document.body.removeChild(eleLink);
-	};
+	}
+
 
 
