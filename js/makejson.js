@@ -397,6 +397,9 @@ function saveallConn() {
         $json['RuleField'][tablename]=temp;
     }
     jsonstr=JSON.stringify($json);
+    $.post("exec.php",{jsonstr:jsonstr},function(res) {
+
+    });
     //传到后台执行
     console.log(jsonstr);
     funDownload(jsonstr, 'config.json');

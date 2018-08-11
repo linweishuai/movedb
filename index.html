@@ -33,6 +33,23 @@
 			   }
 	        });
     });
+    function showUnreadNews() {
+        $.ajax({
+            type: "POST",
+            url: "getlog.php",
+            dataType: "json",
+            success: function (data) {
+               for (var i in data){
+                   $(".msg").append("<p>"+data[i]+"</p>");
+               }
+               if(data.length>0){
+                   $body = (window.opera) ? (document.compatMode == "CSS1Compat" ? $('html') : $('body')) : $('html,body');// 这行是 Opera 的补丁, 少了它 Opera 是直接用跳的而且画面闪烁 by willin
+                   $body.animate({scrollTop: $('.msg').height()+$('.msg').offset().top}, 5000);
+               }
+            }
+        });
+     }
+    setInterval('showUnreadNews()',5000);//轮询执行，500ms一次
 </script>
 <style>
 #container {
@@ -126,6 +143,18 @@
     z-index: 1;
     cursor: pointer;
 }
+.msg{
+    background-color: #080000;
+    width: 100%;
+    min-height: 50px;
+    border-radius: 5px;
+    padding-top: 50px;
+    padding-bottom: 50px;
+}
+.msg p{
+    color: #ffffff;
+    margin-left: 20px;
+}
 </style>
 </head>
 <body>
@@ -201,6 +230,8 @@
             </div>
         </div>
     </div>
+</div>
+<div class="msg">
 </div>
 </div>
 </body>
