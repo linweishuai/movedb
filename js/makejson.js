@@ -133,27 +133,12 @@ function CreateModel(ui, selector)
         alert('该表已经添加')
         return;
     }
-	$(selector).append('<div id="'+model_id+'_zoom" class="modezoom"><div class="panzoom"><div class="model" id="' + model_id
+	$(selector).append('<div class="model" id="' + model_id
 			+ '" modelType="'+ type +'">' 
-			+ getModelElementStr(type) + '</div></div></div>');
+			+ getModelElementStr(type) + '</div>');
 	var left = parseInt(ui.offset.left - $(selector).offset().left);
 	var top = parseInt(ui.offset.top - $(selector).offset().top);
-    $('#'+model_id+"_zoom").css("position","absolute").css("left",left).css("top",top);
-
-
-    //todo锚点放大和缩小问题
-    var $section = $('#'+model_id+"_zoom");
-    var $panzoom = $section.find('.model').panzoom();
-    $panzoom.parent().on('mousewheel.focal', function( e ) {
-        e.preventDefault();
-        var delta = e.delta || e.originalEvent.wheelDelta;
-        var zoomOut = delta ? delta < 0 : e.originalEvent.deltaY > 0;
-        $panzoom.panzoom('zoom', zoomOut, {
-            animate: false,
-            focal: e
-        });
-        instance.repaintEverything();
-    });
+	$("#"+model_id).css("position","absolute").css("left",left).css("top",top);
 	if(dbobject[type].is_export==1){
         var x_position=1;
 	}else{
@@ -315,7 +300,7 @@ function setlabel(conn)
         conn.setData(tempdata)
 	}else {
         var sourcetable=sourceName.split('.')[0];
-        var targettable=sourceName.split('.')[0];
+        var targettable=targetName.split('.')[0];
         if($json['ExportDb'][sourcetable]!=undefined){//如果是从来源表导出 那么说明连接是正确的
             var scource=sourceName;//来源
             var target=targetName;//目标

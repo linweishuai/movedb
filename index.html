@@ -27,31 +27,29 @@
                     if(conndata[0]=='field'){
                         //如果是field链接
                         var target=conndata[1];
-                        $json['Fieldrule'][target]
+                        delete $json['Fieldrule'][target]
                     }
 				    instance.detach(conn);
 			   }
 	        });
-
     });
 </script>
 <style>
 #container {
-	height: 500px;
+	min-height: 800px;
 	position: relative;
-	border: 1px solid #666666;
 	background-color: #ffffff;
 	border-radius: 5px;
 	z-index: 0;
 	overflow: auto;
 }
-#container .modezoom .panzoom .model {
+#container .model {
 	border: 1px solid #ddd;
 	border-radius: 5px;
 	margin-bottom: 0;
 	min-width: 160px;
 }
-#container .modezoom .panzoom .model .dbimport{
+#container .model .dbimport{
      background-color: #438eb9;
      text-align: center;
      background-image: none;
@@ -64,7 +62,7 @@
      padding: 0 3px;
      line-height: 30px;
  }
-#container .modezoom .panzoom .model .dbexport{
+#container .model .dbexport{
     background-color: #e41263;
     text-align: center;
     background-image: none;
@@ -77,17 +75,17 @@
     padding: 0 3px;
     line-height: 30px;
 }
-#container .modezoom .panzoom .model h4 a{
+#container .model h4 a{
 	color: #fff!important;
 }
-#container .modezoom .panzoom .model ul{
+#container .model ul{
 	border: 1px solid #62a8d1;
 	overflow: auto;
 	margin: 0px;
 	width: 100%;
 	padding: 0px;
 }
-#container .modezoom .panzoom .model ul li{
+#container .model ul li{
 	border-bottom: 1px solid #62a8d1;
 	font-size: 18px;
 	list-style-type: none;
@@ -101,27 +99,29 @@
     width: 150px;
     background-color: #e41263;
     border-radius: 5px;
+    display: inline-block;
     font-size: 18px;
     color: #fff;
     text-align: center;
     margin-bottom: 10px;
     list-style-type: none;
-    vertical-align: middle;
     line-height: 40px;
+    margin-left: 10px;
     z-index: 1;
     cursor: pointer;
 }
 #leftMenu .dbimport{
     height: 40px;
     width: 150px;
+    display: inline-block;
     background-color: #438eb9;
     border-radius: 5px;
     font-size: 18px;
     color: #fff;
     text-align: center;
     margin-bottom: 10px;
+    margin-left: 10px;
     list-style-type: none;
-    vertical-align: middle;
     line-height: 40px;
     z-index: 1;
     cursor: pointer;
@@ -146,18 +146,18 @@
     </div>
 <div class="container-fluid">
 	<div class="row">
-		<div class="col-xs-2" style="min-height: 500px;background-color: #62a8d1;border-radius:5px;padding-top: 12px;width: auto;">
-			<div class="content_wrap" style="width: 100%;">
+		<div style="background-color: #62a8d1;border-radius:5px;padding-top: 12px;width: auto;">
+			<div class="content_wrap" style="width: 100%;min-height: 50px;">
 				<div class="left" style="width: 100%;">
 					<ul id="leftMenu" style="overflow: auto;margin: 0px;padding:0px;"></ul>
 				</div>
 			</div>
 		</div>
-		<div class="col-xs-10">
+    </div>
+    <div class="row" id="pan">
             <div class="parent">
-			    <div id="container"></div>
+                <div id="container" style="z-index: 100"></div>
             </div>
-		</div>
 	</div>
 </div>
     <button class="btn-lg btn-white btn-info" style="width: 100%;margin: 10px;" type="button" onclick="saveallConn()" style="display: inline-block;">
