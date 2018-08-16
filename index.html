@@ -9,8 +9,8 @@
 <script type="text/javascript" src="js/jquery-ui.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
 <script type="text/javascript" src="js/jsPlumb-2.2.8.js"></script>
-<script type="text/javascript" src="js/jquery.panzoom.js"></script>
 <script type="text/javascript" src="js/jquery.mousewheel.js"></script>
+<script type="text/javascript" src="js/jquery.zoomooz.min.js"></script>
 <script type="text/javascript" src="js/makejson.js"></script>
 <script type="text/javascript">
 	jQuery(document).ready(function(){
@@ -53,7 +53,7 @@
 </script>
 <style>
 #container {
-	min-height: 800px;
+	min-height: 1600px;
 	position: relative;
 	background-color: #ffffff;
 	border-radius: 5px;
@@ -189,8 +189,8 @@
             </div>
 	</div>
 </div>
-    <button class="btn-lg btn-white btn-info" style="width: 100%;margin: 10px;" type="button" onclick="saveallConn()" style="display: inline-block;">
-        <i class="ace-icon fa fa-check bigger-120 blue"></i> 保存</button>
+    <button class="btn-lg btn-white btn-info" style="width: 100%" type="button" onclick="saveallConn()" style="display: inline-block;">
+        <i class="ace-icon fa fa-check bigger-120 blue"></i> 开始导出</button>
 </div>
 <div id="myModal" class="modal fade" aria-labelledby="myModalLabel" aria-hidden="true">
 	<div class="modal-dialog">
@@ -232,6 +232,7 @@
     </div>
 </div>
 <div class="msg">
+
 </div>
 </div>
 </body>
