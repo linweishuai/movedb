@@ -17,6 +17,7 @@ import (
 	"movedb/config"
 	"regexp"
 	"strings"
+	"movedb/tranfer"
 )
 
 func main() {
@@ -81,6 +82,7 @@ func main() {
 					//如果有条件限制 就取出条件限制
 					//example $account_type eq 'money' and id egt 5000
 					//transfer $account_type == 'money' && id >= 5000
+					//replace 'coupon'=='money' && '20000'>=5000 `javascript`
 					if conditon,ok:=Allconfig.Tablerule[key+Importable];ok{
 						var reg=regexp.MustCompile("\\$\\w+")
 						javascript:=string(reg.ReplaceAllFunc([]byte(conditon), func(i []byte) []byte {
@@ -101,20 +103,21 @@ func main() {
 							//seelog.Infof(Importable+"."+importfield+":"+key.(string)+"."+exportfield)
 							rule,ok:=Allconfig.Fieldrule[Importable+"."+importfield+":"+key+"."+exportfield]
 							if ok{
-								switch (rule.TransferRule){
-								case "Default":
-									rowdata[importfield]=fmt.Sprintf("%q", values[exportfield])
-								case "OnetoOne":
-									index :=0
-									for nowIndex,content:=range rule.ExtraData[0]{
-										if(content==values[exportfield]){
-											index=nowIndex
-										}
-									}
-									rowdata[importfield]=fmt.Sprintf("%q", rule.ExtraData[1][index])
-								default:
-									rowdata[importfield]=fmt.Sprintf("%q", values[exportfield])
-								}
+								rowdata[importfield]=tranfer.DoTransfer(rule.TransferRule,exportfield,values,rule)
+								//switch (rule.TransferRule){
+								//case "Default":
+								//	rowdata[importfield]=fmt.Sprintf("%q", values[exportfield])
+								//case "OnetoOne":
+								//	index :=0
+								//	for nowIndex,content:=range rule.ExtraData[0]{
+								//		if(content==values[exportfield]){
+								//			index=nowIndex
+								//		}
+								//	}
+								//	rowdata[importfield]=fmt.Sprintf("%q", rule.ExtraData[1][index])
+								//default:
+								//	rowdata[importfield]=fmt.Sprintf("%q", values[exportfield])
+								//}
 							}else{
 								continue
 							}

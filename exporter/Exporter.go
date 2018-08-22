@@ -19,7 +19,7 @@ type Tranferdata struct {
 	Data []map[string]string
 }
 
-func (this Exporter)Export(exportResult chan Tranferdata,tableName string,wg *sync.WaitGroup) {
+func (this Exporter)Export(exportResult chan <- Tranferdata,tableName string,wg *sync.WaitGroup) {
 		this.getSum()//调用一下获取总数 然后开始循环查询 每次每个表 默认查1w条数据
 		goexportnum := int(math.Ceil(float64(this.Totalnum / 50000)))
 		selectsql := this.Selectsqlmaker.SelectSqlmaker()
