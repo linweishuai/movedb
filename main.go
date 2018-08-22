@@ -44,7 +44,7 @@ func main() {
 		var wg sync.WaitGroup
 		for Tname,Export:=range Allconfig.Exporter{
 			wg.Add(1)
-			go Export.Export(Transferchan,Tname,&wg)
+			go Export.Export(Transferchan,Tname,&wg,config.ExportDb[Tname]["tablename"])
 		}
 		wg.Wait()
 		close(Transferchan)
@@ -56,7 +56,7 @@ func main() {
 		//每次导入5000数据
 		key:=transferdata.TableName
 		value:=transferdata.Data
-		seelog.Infof("处理导出%s导出数据共%d条数据",key,len(value))
+		seelog.Infof("处理导出%s导出数据共%d条数据",config.ExportDb[key]["tablename"],len(value))
 		var ig sync.WaitGroup
 		ProcessChan := make(chan struct{}, Allconfig.Cpunumber*2)//导入进程是cpu*2
 		goroutineNumber:=*goruntimeNumber
@@ -74,7 +74,7 @@ func main() {
 			//fmt.Println(tempSlice)
 			//os.Exit(1)
 			Importslice:=make(map[string][]map[string]string)
-			seelog.Infof("处理导出%s导出数 据第%d到%d数据",key,start,end)
+			seelog.Infof("处理导出%s导出数 据第%d到%d数据",config.ExportDb[key]["tablename"],start, len(tempSlice))
 			vm := otto.New()
 			for _,values:=range tempSlice{
 				//seelog.Infof(values)
@@ -104,20 +104,6 @@ func main() {
 							rule,ok:=Allconfig.Fieldrule[Importable+"."+importfield+":"+key+"."+exportfield]
 							if ok{
 								rowdata[importfield]=tranfer.DoTransfer(rule.TransferRule,exportfield,values,rule)
-								//switch (rule.TransferRule){
-								//case "Default":
-								//	rowdata[importfield]=fmt.Sprintf("%q", values[exportfield])
-								//case "OnetoOne":
-								//	index :=0
-								//	for nowIndex,content:=range rule.ExtraData[0]{
-								//		if(content==values[exportfield]){
-								//			index=nowIndex
-								//		}
-								//	}
-								//	rowdata[importfield]=fmt.Sprintf("%q", rule.ExtraData[1][index])
-								//default:
-								//	rowdata[importfield]=fmt.Sprintf("%q", values[exportfield])
-								//}
 							}else{
 								continue
 							}
@@ -144,12 +130,12 @@ func main() {
 				}
 				ProcessChan <- struct{}{}
 				go func(i int) {
-					seelog.Infof("导入进程%v开启", i+1)
+					seelog.Infof("导入表%s进程%v开启",config.ImportDb[tablealias]["tablename"], i+1)
 					Importer.Import(ProcessChan)
 					defer ig.Done()
 				}(i)
 			}
-			seelog.Infof("处理导出%s导出数据第%d到%d数据完成",key,start,end)
+			seelog.Infof("处理导出%s导出数据第%d到%d数据完成",config.ExportDb[key]["tablename"],start,end)
 		}
 		ig.Wait()
 	}
@@ -166,7 +152,6 @@ func SetLogger(fileName string) {
 		if err != nil {
 			panic(err)
 		}
-
 		seelog.ReplaceLogger(logger)
 	} else {
 		configString := `<seelog>
@@ -184,7 +169,6 @@ func SetLogger(fileName string) {
 		if err != nil {
 			panic(err)
 		}
-
 		seelog.ReplaceLogger(logger)
 	}
 }

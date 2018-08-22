@@ -19,7 +19,7 @@ type Tranferdata struct {
 	Data []map[string]string
 }
 
-func (this Exporter)Export(exportResult chan <- Tranferdata,tableName string,wg *sync.WaitGroup) {
+func (this Exporter)Export(exportResult chan <- Tranferdata,tableName string,wg *sync.WaitGroup,realName string) {
 		this.getSum()//调用一下获取总数 然后开始循环查询 每次每个表 默认查1w条数据
 		goexportnum := int(math.Ceil(float64(this.Totalnum / 50000)))
 		selectsql := this.Selectsqlmaker.SelectSqlmaker()
@@ -31,7 +31,7 @@ func (this Exporter)Export(exportResult chan <- Tranferdata,tableName string,wg 
 			//fmt.Println(doSql)
 			exportRs, err := this.Dbconnction.Query(doSql)
 			if err != nil {
-				seelog.Errorf("表%v查询出错%v",tableName, err)
+				seelog.Errorf("表%v查询出错%v",realName, err)
 			}
 
 			var ExportFieldSlice= make([]interface{}, 0, len(this.Selectsqlmaker.Sqlmaker.Field))
@@ -55,7 +55,7 @@ func (this Exporter)Export(exportResult chan <- Tranferdata,tableName string,wg 
 			//seelog.Info(result)
 			exportRs.Close()
 			//os.Exit(2)
-			seelog.Infof("%s导出%d条数据", tableName, exportcount)
+			seelog.Infof("%s导出%d条数据 from %d", realName, exportcount,start)
 			TranferData := Tranferdata{
 				TableName: tableName,
 				Data:      result,
