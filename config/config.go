@@ -88,7 +88,7 @@ func (this *Allconfig) InitexportdbInstance(config Conifg){
 			Passwd:   config.ExportDb[tableName]["passwd"],
 			Dbname:   config.ExportDb[tableName]["dbname"],
 		}
-		var Dbconnection = exportDB.GetDbInstance();
+		var Dbconnection,_ = exportDB.GetDbInstance();
 		Exporter := exporter.Exporter{
 			Dbconnction: Dbconnection,
 			Selectsqlmaker: sqlmaker.Selectsqlmaker{
@@ -107,7 +107,7 @@ func (this *Allconfig) InitexportdbInstance(config Conifg){
 			Passwd:   config.ImportDb[tableName]["passwd"],
 			Dbname:   config.ImportDb[tableName]["dbname"],
 		}
-		var Dbconnection = ImportDb.GetDbInstance();
+		var Dbconnection,_ = ImportDb.GetDbInstance();
 		this.Importer[tableName]=Dbconnection
 	}
 }

@@ -33,23 +33,26 @@
 			   }
 	        });
     });
-    function showUnreadNews() {
-        $.ajax({
-            type: "POST",
-            url: "getlog.php",
-            dataType: "json",
-            success: function (data) {
-               for (var i in data){
-                   $(".msg").append("<p>"+data[i]+"</p>");
-               }
-               if(data.length>0){
-                   $body = (window.opera) ? (document.compatMode == "CSS1Compat" ? $('html') : $('body')) : $('html,body');// 这行是 Opera 的补丁, 少了它 Opera 是直接用跳的而且画面闪烁 by willin
-                   $body.animate({scrollTop: $('.msg').height()+$('.msg').offset().top}, 5000);
-               }
-            }
-        });
-     }
-    setInterval('showUnreadNews()',5000);//轮询执行，500ms一次
+
+        var ws = new WebSocket("ws://127.0.0.1:8888/ws");
+
+        ws.onopen = function()
+        {
+            ws.send("发送数据");
+        };
+
+        ws.onmessage = function (evt)
+        {
+            var log=JSON.parse(evt.data);
+            $(".msg").append("<p>"+log.content+"</p>");
+            $body = (window.opera) ? (document.compatMode == "CSS1Compat" ? $('html') : $('body')) : $('html,body');// 这行是 Opera 的补丁, 少了它 Opera 是直接用跳的而且画面闪烁 by willin
+            $body.animate({scrollTop: $('.msg').height()+$('.msg').offset().top}, 100);
+        };
+        ws.onclose = function()
+        {
+            alert("连接已关闭...");
+        };
+
 </script>
 <style>
 #container {

@@ -55,6 +55,7 @@ func (this Exporter)Export(exportResult chan <- Tranferdata,tableName string,wg 
 			//seelog.Info(result)
 			exportRs.Close()
 			//os.Exit(2)
+			//ReceiveApplication(fmt.Sprintf("%s导出%d条数据 from %d", realName, exportcount,start))
 			seelog.Infof("%s导出%d条数据 from %d", realName, exportcount,start)
 			TranferData := Tranferdata{
 				TableName: tableName,

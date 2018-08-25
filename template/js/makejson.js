@@ -22,7 +22,7 @@ function getdbinfo() {
 		alert('数据库别名已经使用,请更换');
 		return;
 	}
-    $.post("getDbinfo.php",{host:host,username:username,password:passwd,dbname:dbname,tablename:tablename},function(res) {
+    $.post("getDbinfo",{host:host,username:username,password:passwd,dbname:dbname,tablename:tablename},function(res) {
         if (!res.status) {
             alert(res.msg);
             return;
@@ -397,12 +397,34 @@ function saveallConn() {
         $json['RuleField'][tablename]=temp;
     }
     jsonstr=JSON.stringify($json);
-    $.post("exec.php",{jsonstr:jsonstr},function(res) {
+    $.post("exec",{jsonstr:jsonstr},function(res) {
 
     });
-    //传到后台执行
-    console.log(jsonstr);
-    funDownload(jsonstr, 'config.json');
+        // //开启ws 监听
+        // // 打开一个 web socket
+        // var ws = new WebSocket("ws://localhost:8888/ws");
+        //
+        // ws.onopen = function()
+        // {
+        //     // Web Socket 已连接上，使用 send() 方法发送数据
+        //     ws.send("发送数据");
+        //     alert("数据发送中...");
+        // };
+        //
+        // ws.onmessage = function (evt)
+        // {
+        //     var received_msg = evt.data;
+        //     alert("数据已接收...");
+        // };
+        //
+        // ws.onclose = function()
+        // {
+        //     // 关闭 websocket
+        //     alert("连接已关闭...");
+        // };
+        //传到后台执行
+        console.log(jsonstr);
+        // funDownload(jsonstr, 'config.json');
 }
 	function funDownload(content, filename) {
 		var eleLink = document.createElement('a');
