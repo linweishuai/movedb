@@ -17,6 +17,7 @@ func main() {
 	//开启ws服务日志输出
 	go Registerwsservice()
 	seelog.Infof("application start success")
+	seelog.Infof("use you browser open http://127.0.0.1:8888")
 	time.Sleep(2*time.Second)
 	exec.Command("rundll32", "url.dll,FileProtocolHandler", "http://127.0.0.1:8888").Start()
 	select {}
