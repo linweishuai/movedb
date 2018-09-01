@@ -15,7 +15,6 @@ func main() {
 	seelog.Infof("start application....")
 	go Registerwebservice();
 	//开启ws服务日志输出
-	go Registerwsservice()
 	seelog.Infof("application start success")
 	seelog.Infof("use you browser open http://127.0.0.1:8888")
 	time.Sleep(2*time.Second)
@@ -49,16 +48,13 @@ func SetLogger(fileName string) {
 	}
 }
 func Registerwebservice(){
+	go controller.Manager.Start()
 	http.Handle("/css/", http.FileServer(http.Dir("template")))
 	http.Handle("/js/", http.FileServer(http.Dir("template")))
 	//注册几个
 	http.HandleFunc("/getDbinfo", controller.GetDbInfoHandler)
 	http.HandleFunc("/exec",controller.ExecHandler)
 	http.HandleFunc("/",controller.IndexHandler)
-	http.ListenAndServe(":8888", nil)
-}
-func Registerwsservice()  {
-	go controller.Manager.Start()
 	http.HandleFunc("/ws", controller.WsPage)
 	http.ListenAndServe(":8888", nil)
 }
