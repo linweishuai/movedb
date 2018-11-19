@@ -7,6 +7,7 @@ import (
 	"movedb/controller"
 	"os/exec"
 	"time"
+	"movedb/ws"
 )
 
 func main() {
@@ -48,7 +49,7 @@ func SetLogger(fileName string) {
 	}
 }
 func Registerwebservice(){
-	go controller.Manager.Start()
+	go ws.Manager.Start()
 	http.Handle("/css/", http.FileServer(http.Dir("template")))
 	http.Handle("/js/", http.FileServer(http.Dir("template")))
 	//注册几个

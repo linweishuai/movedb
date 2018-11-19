@@ -16,6 +16,7 @@ import (
 	"movedb/tranfer"
 	"movedb/sqlmaker"
 	"movedb/importer"
+	"movedb/ws"
 )
 
 func Doexport()  {
@@ -28,7 +29,7 @@ func Doexport()  {
 	content,err:=ioutil.ReadFile(config_path)
 	if err!=nil{
 		seelog.Infof("读取配置文件出错")
-		ReceiveApplication("读取配置文件出错")
+		ws.ReceiveApplication("读取配置文件出错")
 	}
 
 	var Allconfig config.Allconfig;
@@ -36,7 +37,7 @@ func Doexport()  {
 	jsonerr := json.Unmarshal(content, &config)
 	if jsonerr != nil {
 		seelog.Infof("error in translating,", err.Error())
-		ReceiveApplication("error in translating,"+err.Error())
+		ws.ReceiveApplication("error in translating,"+err.Error())
 		return
 	}
 	Allconfig.Initrule(config)
@@ -51,7 +52,7 @@ func Doexport()  {
 		wg.Wait()
 		close(Transferchan)
 		seelog.Infof("所有表数据到处完成")
-		ReceiveApplication("所有表数据到处完成")
+		ws.ReceiveApplication("所有表数据到处完成")
 	}()
 	//从导出的数据入手 导出的数据多有几个那么就遍历这些数据
 	beginTime := time.Now().Unix()
@@ -59,7 +60,7 @@ func Doexport()  {
 		//每次导入5000数据
 		key:=transferdata.TableName
 		value:=transferdata.Data
-		ReceiveApplication(fmt.Sprintf("处理导出%s导出数据共%d条数据",config.ExportDb[key]["tablename"],len(value)))
+		ws.ReceiveApplication(fmt.Sprintf("处理导出%s导出数据共%d条数据",config.ExportDb[key]["tablename"],len(value)))
 		seelog.Infof("处理导出%s导出数据共%d条数据",config.ExportDb[key]["tablename"],len(value))
 		var ig sync.WaitGroup
 		ProcessChan := make(chan struct{}, Allconfig.Cpunumber*2)//导入进程是cpu*2
@@ -78,7 +79,7 @@ func Doexport()  {
 			//fmt.Println(tempSlice)
 			//os.Exit(1)
 			Importslice:=make(map[string][]map[string]string)
-			ReceiveApplication(fmt.Sprintf("处理导出%s导出数 据第%d到%d数据",config.ExportDb[key]["tablename"],start, len(tempSlice)))
+			ws.ReceiveApplication(fmt.Sprintf("处理导出%s导出数 据第%d到%d数据",config.ExportDb[key]["tablename"],start, len(tempSlice)))
 			seelog.Infof("处理导出%s导出数 据第%d到%d数据",config.ExportDb[key]["tablename"],start, len(tempSlice))
 			vm := otto.New()
 			for _,values:=range tempSlice{
@@ -135,20 +136,20 @@ func Doexport()  {
 				}
 				ProcessChan <- struct{}{}
 				go func(i int) {
-					ReceiveApplication(fmt.Sprintf("导入表%s进程%v开启",config.ImportDb[tablealias]["tablename"], i+1))
+					ws.ReceiveApplication(fmt.Sprintf("导入表%s进程%v开启",config.ImportDb[tablealias]["tablename"], i+1))
 					seelog.Infof("导入表%s进程%v开启",config.ImportDb[tablealias]["tablename"], i+1)
 					Importer.Import(ProcessChan)
 					defer ig.Done()
 				}(i)
 			}
-			ReceiveApplication(fmt.Sprintf("处理导出%s导出数据第%d到%d数据完成",config.ExportDb[key]["tablename"],start,end))
+			ws.ReceiveApplication(fmt.Sprintf("处理导出%s导出数据第%d到%d数据完成",config.ExportDb[key]["tablename"],start,end))
 			seelog.Infof("处理导出%s导出数据第%d到%d数据完成",config.ExportDb[key]["tablename"],start,end)
 		}
 		ig.Wait()
 	}
 	finishTime := time.Now().Unix()
 	defer func() {
-		ReceiveApplication(fmt.Sprintf("导入完成实际消耗时间为：%v秒", finishTime-beginTime))
+		ws.ReceiveApplication(fmt.Sprintf("导入完成实际消耗时间为：%v秒", finishTime-beginTime))
 		seelog.Infof("导入完成实际消耗时间为：%v秒", finishTime-beginTime)
 		seelog.Flush()
 	}()
